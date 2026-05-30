@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="keba-fit"/>
+<title>keba-fit</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0a; --bg2: #111111; --bg3: #181818;
+    --border: #222222; --border2: #2a2a2a;
+    --text: #e8e8e8; --text2: #888888; --text3: #444444;
+    --gold: #c9a84c; --gold2: #e8c96a;
+    --green: #2ecc71; --red: #e74c3c; --blue: #3498db;
+    --push: #e84a2e; --pull: #2e7de8; --legs: #2ebf71; --full: #c9a84c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Barlow Condensed', sans-serif; overflow: hidden; }
+  .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+  .header { padding: max(env(safe-area-inset-top),12px) 20px 12px; background: var(--bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .header-logo { font-family: 'Space Mono', monospace; font-size: 18px; color: var(--gold2); }
+  .header-logo span { color: var(--text3); }
+  .header-meta { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text3); text-align: right; line-height: 1.6; }
+  .header-meta strong { color: var(--gold); }
+  .content { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+  .tab-panel { display: none; padding: 20px 16px 100px; }
+  .tab-panel.active { display: block; }
+  .nav { display: flex; background: var(--bg2); border-top: 1px solid var(--border); padding-bottom: env(safe-area-inset-bottom,0px); flex-shrink: 0; z-index: 100; }
+  .nav-btn { flex: 1; padding: 12px 4px 10px; background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text3); transition: color 0.2s; }
+  .nav-btn.active { color: var(--gold2); }
+  .nav-btn svg { width: 20px; height: 20px; }
+  .nav-btn span { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .section-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: var(--text3); text-transform: uppercase; margin-bottom: 12px; margin-top: 28px; }
+  .section-label:first-child { margin-top: 0; }
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; padding: 16px; margin-bottom: 10px; }
+  .card-sm { padding: 12px 16px; }
+  .info-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .info-row:last-child { border-bottom: none; }
+  .info-key { font-size: 13px; color: var(--text2); }
+  .info-val { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--text); }
+  .info-val.gold { color: var(--gold2); }
+  .week-selector { display: flex; gap: 8px; margin-bottom: 20px; }
+  .week-btn { flex: 1; padding: 10px 4px; background: var(--bg2); border: 1px solid var(--border); border-radius: 3px; color: var(--text2); font-family: 'Space Mono', monospace; font-size: 11px; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .week-btn.active { background: var(--gold); border-color: var(--gold); color: #000; font-weight: 700; }
+  .day-selector { display: flex; gap: 6px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px; }
+  .day-btn { flex-shrink: 0; padding: 8px 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: 3px; color: var(--text2); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .day-btn[data-day="push"].active { background: var(--push); border-color: var(--push); color: #fff; }
+  .day-btn[data-day="pull"].active { background: var(--pull); border-color: var(--pull); color: #fff; }
+  .day-btn[data-day="legs"].active { background: var(--legs); border-color: var(--legs); color: #fff; }
+  .day-btn[data-day="full"].active { background: var(--full); border-color: var(--full); color: #000; }
+  .day-header { margin-bottom: 16px; }
+  .day-title { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 2px; }
+  .day-sub { font-size: 13px; color: var(--text2); font-weight: 400; }
+  .day-title.push { color: var(--push); } .day-title.pull { color: var(--pull); }
+  .day-title.legs { color: var(--legs); } .day-title.full { color: var(--full); }
+  .exercise-row { display: flex; align-items: flex-start; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .exercise-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .exercise-num { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text3); padding-top: 2px; min-width: 16px; }
+  .exercise-info { flex: 1; }
+  .exercise-name { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .exercise-note { font-size: 12px; color: var(--text2); font-style: italic; margin-bottom: 4px; }
+  .exercise-sets { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--gold); }
+  .overload-badge { font-family: 'Space Mono', monospace; font-size: 9px; padding: 3px 7px; border-radius: 2px; background: rgba(201,168,76,0.12); color: var(--gold); border: 1px solid rgba(201,168,76,0.2); flex-shrink: 0; align-self: center; }
+  .deload-banner { background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.2); border-radius: 4px; padding: 16px; text-align: center; }
+  .deload-banner h3 { font-size: 20px; font-weight: 700; color: var(--gold2); margin-bottom: 6px; }
+  .deload-banner p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .macro-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .macro-card { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 14px 10px; text-align: center; }
+  .macro-val { font-family: 'Space Mono', monospace; font-size: 20px; color: var(--gold2); font-weight: 700; }
+  .macro-unit { font-size: 9px; color: var(--text3); font-family: 'Space Mono', monospace; margin-bottom: 2px; }
+  .macro-label { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; }
+  .carb-toggle { display: flex; gap: 8px; margin-bottom: 16px; }
+  .carb-btn { flex: 1; padding: 10px; background: var(--bg2); border: 1px solid var(--border); border-radius: 3px; color: var(--text2); font-family: 'Space Mono', monospace; font-size: 10px; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .carb-btn.active { background: rgba(46,191,113,0.15); border-color: var(--green); color: var(--green); }
+  .meal-row { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 8px; }
+  .meal-icon { font-size: 24px; flex-shrink: 0; }
+  .meal-info { flex: 1; }
+  .meal-label { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .meal-desc { font-size: 12px; color: var(--text2); font-style: italic; line-height: 1.4; }
+  .meal-meta { text-align: right; flex-shrink: 0; }
+  .meal-protein { font-family: 'Space Mono', monospace; font-size: 16px; color: var(--green); }
+  .meal-punit { font-size: 9px; color: var(--text3); font-family: 'Space Mono', monospace; }
+  .meal-time { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .supp-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+  .supp-row:last-child { border-bottom: none; }
+  .supp-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .supp-name { flex: 1; font-size: 14px; font-weight: 600; }
+  .supp-verdict { font-family: 'Space Mono', monospace; font-size: 10px; }
+  .timeline { position: relative; margin: 20px 0; height: 48px; }
+  .timeline-bar { height: 8px; border-radius: 4px; background: var(--border); position: absolute; top: 20px; left: 0; right: 0; overflow: hidden; }
+  .timeline-fast { position: absolute; left: 0; width: 66.7%; height: 100%; background: rgba(231,76,60,0.3); border-right: 2px solid var(--red); }
+  .timeline-eat { position: absolute; left: 66.7%; right: 0; height: 100%; background: rgba(46,191,113,0.3); }
+  .timeline-train { position: absolute; left: 60%; width: 6%; height: 100%; background: var(--gold); }
+  .timeline-label { position: absolute; font-family: 'Space Mono', monospace; font-size: 9px; }
+  .tl-fast{left:0;top:0;color:var(--red);} .tl-train{left:58%;top:0;color:var(--gold);} .tl-eat{right:0;top:0;color:var(--green);}
+  .tl-6am{left:0;bottom:0;color:var(--text3);} .tl-1pm{left:58%;bottom:0;color:var(--text3);} .tl-2pm{left:66%;bottom:0;color:var(--text3);} .tl-9pm{right:0;bottom:0;color:var(--text3);}
+  .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .form-label { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text3); letter-spacing: 0.15em; }
+  .form-input, .form-textarea, .form-select { background: var(--bg2); border: 1px solid var(--border2); border-radius: 3px; color: var(--text); font-family: 'Barlow Condensed', sans-serif; font-size: 15px; padding: 10px 12px; outline: none; width: 100%; transition: border-color 0.2s; -webkit-appearance: none; }
+  .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--gold); }
+  .form-textarea { min-height: 80px; resize: vertical; }
+  .form-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+  .primary-btn { width: 100%; padding: 16px; background: var(--gold); border: none; border-radius: 3px; color: #000; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; cursor: pointer; letter-spacing: 0.05em; transition: background 0.2s; margin-top: 8px; }
+  .primary-btn:active { background: var(--gold2); }
+  .success-msg { text-align: center; font-family: 'Space Mono', monospace; font-size: 11px; color: var(--green); margin-top: 8px; display: none; }
+  .update-box { background: var(--bg3); border: 1px solid var(--border2); border-radius: 4px; padding: 16px; margin-bottom: 16px; }
+  .update-box-title { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--gold); letter-spacing: 0.15em; margin-bottom: 10px; }
+  .update-box-desc { font-size: 13px; color: var(--text2); margin-bottom: 12px; line-height: 1.5; }
+  .update-textarea { background: var(--bg); border: 1px solid var(--border2); border-radius: 3px; color: var(--green); font-family: 'Space Mono', monospace; font-size: 11px; padding: 12px; outline: none; width: 100%; min-height: 90px; resize: vertical; transition: border-color 0.2s; }
+  .update-textarea:focus { border-color: var(--gold); }
+  .update-btn { width: 100%; padding: 14px; background: transparent; border: 1px solid var(--gold); border-radius: 3px; color: var(--gold); font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; cursor: pointer; letter-spacing: 0.05em; transition: all 0.2s; margin-top: 10px; }
+  .update-btn:active { background: var(--gold); color: #000; }
+  .update-log { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text3); margin-top: 8px; min-height: 16px; }
+  .update-log.success { color: var(--green); }
+  .update-log.error { color: var(--red); }
+  .step-row { display: flex; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+  .step-row:last-child { border-bottom: none; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--bg3); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-size: 11px; color: var(--gold); flex-shrink: 0; }
+  .step-content { flex: 1; }
+  .step-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .step-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .step-app { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--gold); margin-bottom: 4px; letter-spacing: 0.1em; }
+  .coaching-note { background: rgba(201,168,76,0.06); border: 1px solid rgba(201,168,76,0.15); border-radius: 4px; padding: 14px; margin-bottom: 16px; }
+  .coaching-note-label { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--gold); letter-spacing: 0.15em; margin-bottom: 6px; }
+  .coaching-note-text { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  .tab-panel.active > * { animation: fadeUp 0.3s ease both; }
+  .tab-panel.active > *:nth-child(2) { animation-delay: 0.04s; }
+  .tab-panel.active > *:nth-child(3) { animation-delay: 0.08s; }
+  .tab-panel.active > *:nth-child(4) { animation-delay: 0.12s; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-logo">keba<span>-</span>fit</div>
+    <div class="header-meta" id="header-meta">
+      <div>93kg · 30s · Recomp</div>
+      <div><strong>16:8</strong> · 2pm–9pm</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="tab-panel active" id="tab-training">
+      <div id="coaching-note-training" class="coaching-note" style="display:none;">
+        <div class="coaching-note-label">📣 COACH NOTE</div>
+        <div class="coaching-note-text" id="coaching-note-training-text"></div>
+      </div>
+      <div class="section-label">Select Week</div>
+      <div class="week-selector">
+        <button class="week-btn active" onclick="selectWeek(1,this)">W1</button>
+        <button class="week-btn" onclick="selectWeek(2,this)">W2</button>
+        <button class="week-btn" onclick="selectWeek(3,this)">W3</button>
+        <button class="week-btn" onclick="selectWeek(4,this)">W4</button>
+        <button class="week-btn" onclick="selectWeek(5,this)" style="color:var(--gold);border-color:var(--gold);">DL</button>
+      </div>
+      <div id="deload-banner" class="deload-banner" style="display:none;">
+        <h3>⚡ Week 5 — Deload</h3>
+        <p>Drop all weights 40–50%. Same exercises, same structure. Your body repairs and grows during deload. Come back Week 6 stronger.</p>
+      </div>
+      <div id="training-content">
+        <div class="section-label">Select Day</div>
+        <div class="day-selector">
+          <button class="day-btn active" data-day="push" onclick="selectDay('push',this)">MON · Push</button>
+          <button class="day-btn" data-day="pull" onclick="selectDay('pull',this)">TUE · Pull</button>
+          <button class="day-btn" data-day="legs" onclick="selectDay('legs',this)">THU · Legs</button>
+          <button class="day-btn" data-day="full" onclick="selectDay('full',this)">SAT · Full Body</button>
+        </div>
+        <div id="day-content"></div>
+      </div>
+    </div>
+    <div class="tab-panel" id="tab-nutrition">
+      <div id="coaching-note-nutrition" class="coaching-note" style="display:none;">
+        <div class="coaching-note-label">📣 COACH NOTE</div>
+        <div class="coaching-note-text" id="coaching-note-nutrition-text"></div>
+      </div>
+      <div class="section-label">Fasting Protocol</div>
+      <div class="card">
+        <div class="timeline">
+          <div class="timeline-bar">
+            <div class="timeline-fast"></div>
+            <div class="timeline-eat"></div>
+            <div class="timeline-train"></div>
+          </div>
+          <span class="timeline-label tl-fast">FAST</span>
+          <span class="timeline-label tl-train">TRAIN</span>
+          <span class="timeline-label tl-eat">EAT</span>
+          <span class="timeline-label tl-6am">6am</span>
+          <span class="timeline-label tl-1pm">1pm</span>
+          <span class="timeline-label tl-2pm">2pm</span>
+          <span class="timeline-label tl-9pm">9pm</span>
+        </div>
+        <div style="margin-top:16px;">
+          <div class="info-row"><span class="info-key">Protocol</span><span class="info-val gold">16:8 IF</span></div>
+          <div class="info-row"><span class="info-key">Eating window</span><span class="info-val">2pm – 9pm</span></div>
+          <div class="info-row"><span class="info-key">Train</span><span class="info-val">1pm – 2pm</span></div>
+        </div>
+      </div>
+      <div class="section-label">Daily Targets</div>
+      <div class="carb-toggle">
+        <button class="carb-btn active" onclick="setDayType('training',this)">🏋️ Training Day</button>
+        <button class="carb-btn" onclick="setDayType('rest',this)">😴 Rest Day</button>
+      </div>
+      <div class="macro-row">
+        <div class="macro-card"><div class="macro-unit">KCAL</div><div class="macro-val" id="cal-val">2,300</div><div class="macro-label">Calories</div></div>
+        <div class="macro-card"><div class="macro-unit">G</div><div class="macro-val" style="color:var(--green)" id="prot-val">170</div><div class="macro-label">Protein</div></div>
+        <div class="macro-card"><div class="macro-unit">G</div><div class="macro-val" style="color:var(--blue)" id="carb-val">220</div><div class="macro-label">Carbs</div></div>
+        <div class="macro-card"><div class="macro-unit">G</div><div class="macro-val" style="color:var(--gold)" id="fat-val">65</div><div class="macro-label">Fats</div></div>
+      </div>
+      <div class="section-label">Meal Plan</div>
+      <div id="meal-plan"></div>
+      <div class="section-label">Supplements</div>
+      <div class="card" id="supp-list"></div>
+      <div class="section-label">Budget</div>
+      <div class="card">
+        <div class="info-row"><span class="info-key">Est. daily cost</span><span class="info-val gold" id="budget-daily">£6 – £8</span></div>
+        <div class="info-row"><span class="info-key">Est. weekly cost</span><span class="info-val gold" id="budget-weekly">£42 – £56</span></div>
+        <div class="info-row"><span class="info-key">Best protein sources</span><span class="info-val">Chicken · Eggs · Mince</span></div>
+      </div>
+    </div>
+    <div class="tab-panel" id="tab-checkin">
+      <div class="update-box">
+        <div class="update-box-title">⚡ PASTE CLAUDE UPDATE</div>
+        <div class="update-box-desc">Chat with Claude, get an update code, paste it here and tap Apply. Your app updates instantly.</div>
+        <textarea class="update-textarea" id="update-input" placeholder="KEBA-UPDATE::week=3::calories=2400::..."></textarea>
+        <button class="update-btn" onclick="applyUpdate()">APPLY UPDATE</button>
+        <div class="update-log" id="update-log"></div>
+      </div>
+      <div class="section-label">Weekly Check-In</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6;">Fill this in, copy, and paste directly into Claude for your weekly coaching review.</p>
+      <div class="form-group"><label class="form-label">Week Number</label><select class="form-select" id="ci-week"><option>Week 1</option><option>Week 2</option><option>Week 3</option><option>Week 4</option><option>Week 5 (Deload)</option><option>Week 6+</option></select></div>
+      <div class="form-group"><label class="form-label">Current Weight (kg)</label><input class="form-input" id="ci-weight" type="number" placeholder="e.g. 93" step="0.1"/></div>
+      <div class="form-group"><label class="form-label">Sessions Completed</label><select class="form-select" id="ci-sessions"><option>4/4 — Full week</option><option>3/4 — Missed one</option><option>2/4 — Struggled</option><option>1/4 — Rough week</option><option>0/4 — Missed everything</option></select></div>
+      <div class="form-group"><label class="form-label">Protein Target Hit?</label><select class="form-select" id="ci-protein"><option>Yes — consistently 160g+</option><option>Mostly — 130–160g average</option><option>Struggled — under 130g most days</option></select></div>
+      <div class="form-group"><label class="form-label">Nutrition Compliance</label><select class="form-select" id="ci-nutrition"><option>On point — hit targets most days</option><option>Okay — a few off days</option><option>Poor — went off plan a lot</option></select></div>
+      <div class="form-group"><label class="form-label">Energy & Recovery (1–5)</label><select class="form-select" id="ci-energy"><option>5 — Felt great</option><option>4 — Good with some tired days</option><option>3 — Average</option><option>2 — Often tired or sore</option><option>1 — Burned out</option></select></div>
+      <div class="form-group"><label class="form-label">Back / Shoulder Issues?</label><select class="form-select" id="ci-injury"><option>No issues</option><option>Minor discomfort — manageable</option><option>Moderate pain — need to modify</option><option>Significant pain — need to stop</option></select></div>
+      <div class="form-group"><label class="form-label">Biggest Win This Week</label><textarea class="form-textarea" id="ci-win" placeholder="e.g. Hit protein every day, increased weight on rows..."></textarea></div>
+      <div class="form-group"><label class="form-label">Biggest Challenge / Question for Claude</label><textarea class="form-textarea" id="ci-challenge" placeholder="e.g. Struggling with meal timing on rest days..."></textarea></div>
+      <button class="primary-btn" onclick="copyCheckin()">📋 COPY CHECK-IN FOR CLAUDE</button>
+      <div class="success-msg" id="copy-success">✅ Copied! Paste directly into Claude.</div>
+    </div>
+    <div class="tab-panel" id="tab-setup">
+      <div class="section-label">Your App Stack</div>
+      <div class="card">
+        <div class="info-row"><span class="info-key" style="font-size:15px;font-weight:700;">Hevy</span><span class="info-val" style="color:var(--green)">Workout Logging</span></div>
+        <div class="info-row"><span class="info-key" style="font-size:15px;font-weight:700;">MyFitnessPal</span><span class="info-val" style="color:var(--green)">Calories & Protein</span></div>
+        <div class="info-row"><span class="info-key" style="font-size:15px;font-weight:700;">Apple Health</span><span class="info-val" style="color:var(--green)">Central Sync Hub</span></div>
+        <div class="info-row"><span class="info-key" style="font-size:15px;font-weight:700;">Notion</span><span class="info-val" style="color:var(--green)">Weekly Check-ins</span></div>
+        <div class="info-row"><span class="info-key" style="font-size:15px;font-weight:700;">Claude</span><span class="info-val" style="color:var(--gold2)">Your Coach</span></div>
+      </div>
+      <div class="section-label">Setup Steps</div>
+      <div class="card">
+        <div class="step-row"><div class="step-num">1</div><div class="step-content"><div class="step-app">HEVY</div><div class="step-title">Download & Log Workouts</div><div class="step-desc">Free on App Store. Create an account and add your workouts from the Training tab. Log every session here — track weights and reps to see progressive overload in action.</div></div></div>
+        <div class="step-row"><div class="step-num">2</div><div class="step-content"><div class="step-app">MYFITNESSPAL</div><div class="step-title">Set Targets & Log Food</div><div class="step-desc">Set daily targets: 2,300 cal / 170g protein. Use barcode scanner for every meal. Switch between training day and rest day targets using the toggle in the Nutrition tab.</div></div></div>
+        <div class="step-row"><div class="step-num">3</div><div class="step-content"><div class="step-app">APPLE HEALTH + WATCH</div><div class="step-title">Connect Everything</div><div class="step-desc">Enable Apple Health sync in both Hevy and MFP settings. Your Apple Watch feeds in automatically. Apple Health becomes your single source of truth for all activity data.</div></div></div>
+        <div class="step-row"><div class="step-num">4</div><div class="step-content"><div class="step-app">NOTION + CLAUDE</div><div class="step-title">Weekly Check-in System</div><div class="step-desc">Each week, fill in the Check-in tab, copy it and paste to Claude. Claude reviews your week, gives coaching adjustments, and sends back an update code you paste into this app.</div></div></div>
+        <div class="step-row"><div class="step-num">5</div><div class="step-content"><div class="step-app">PWA · IPHONE</div><div class="step-title">Save to Home Screen</div><div class="step-desc">Open your Netlify URL in Safari. Tap Share → "Add to Home Screen" → Add. keba-fit lives on your home screen like a native app.</div></div></div>
+      </div>
+    </div>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="switchTab('training',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4v16M18 4v16M6 12h12M2 7h4M18 7h4M2 17h4M18 17h4"/></svg>
+      <span>Training</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('nutrition',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 017 7c0 5-7 13-7 13S5 14 5 9a7 7 0 017-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+      <span>Nutrition</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('checkin',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <span>Check-in</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('setup',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+      <span>Setup</span>
+    </button>
+  </nav>
+</div>
+<script>
+const DEFAULTS = {
+  weight: 93, week: 1,
+  training: { calories: 2300, protein: 170, carbs: 220, fats: 65 },
+  rest:     { calories: 1900, protein: 170, carbs: 140, fats: 60 },
+  budgetDaily: '£6 – £8', budgetWeekly: '£42 – £56',
+  coachNoteTraining: '', coachNoteNutrition: '',
+  exercises: {
+    push: [
+      { name: "Incline DB Press",          sets: [3,4,4,4], reps: "10–12", note: "Safer angle for chest & shoulders. Controlled eccentric." },
+      { name: "Cable Chest Fly",           sets: [3,3,4,4], reps: "12–15", note: "Full stretch at bottom. Squeeze at top." },
+      { name: "Seated DB Shoulder Press",  sets: [3,3,4,4], reps: "10–12", note: "Seated = less lower back load." },
+      { name: "Cable Lateral Raise",       sets: [3,3,3,4], reps: "15–20", note: "Light weight, strict form. Cable keeps tension." },
+      { name: "Tricep Pushdown (rope)",    sets: [3,3,4,4], reps: "12–15", note: "Elbows tucked. Full extension." },
+    ],
+    pull: [
+      { name: "Seated Cable Row",           sets: [3,4,4,4], reps: "10–12", note: "Neutral spine. Pull to lower chest." },
+      { name: "Lat Pulldown (wide grip)",   sets: [3,3,4,4], reps: "10–12", note: "Pull to upper chest. Control the upward phase." },
+      { name: "Chest-Supported Row",        sets: [3,3,4,4], reps: "10–12", note: "Removes lower back load completely." },
+      { name: "Face Pulls (cable)",         sets: [3,3,3,4], reps: "15–20", note: "Critical for shoulder health." },
+      { name: "DB Hammer Curl",             sets: [3,3,4,4], reps: "12–15", note: "Neutral grip. No swinging." },
+    ],
+    legs: [
+      { name: "Leg Press",                        sets: [4,4,4,4], reps: "10–12", note: "No heavy spinal load. Full range." },
+      { name: "Romanian Deadlift (light)",        sets: [3,3,4,4], reps: "10–12", note: "Hinge not bend. Neutral back." },
+      { name: "Leg Curl (machine)",               sets: [3,3,4,4], reps: "12–15", note: "Full range. Slow up phase." },
+      { name: "Walking Lunges (BW or light DB)",  sets: [3,3,3,4], reps: "10 each", note: "Build base before loading." },
+      { name: "Dead Bug",                         sets: [3,3,3,4], reps: "8–10/side", note: "Lower back flat on floor always." },
+      { name: "Plank",                            sets: [3,3,3,4], reps: "30–60s", note: "No sagging hips. Neutral neck." },
+    ],
+    full: [
+      { name: "Goblet Squat",             sets: [3,3,3,4], reps: "12–15", note: "Pattern the squat safely. Upright torso." },
+      { name: "Cable Row (light)",        sets: [3,3,3,4], reps: "12–15", note: "Lower intensity. Mind-muscle connection." },
+      { name: "Incline DB Press (light)", sets: [3,3,3,4], reps: "12–15", note: "Slightly lighter than Monday." },
+      { name: "Step-Ups (bodyweight)",    sets: [3,3,3,3], reps: "10 each", note: "Full hip extension at top." },
+      { name: "Band Pull-Apart",          sets: [3,3,3,3], reps: "20",      note: "Shoulder health. Arms straight." },
+      { name: "Cable Crunch",             sets: [3,3,3,4], reps: "12–15",   note: "Core braced, not crunched." },
+    ]
+  },
+  mealsTraining: [
+    { icon:"🥣", time:"2:00pm", label:"Meal 1 — Break Fast",  desc:"Oats 80g + whey 1 scoop + banana. Carb-forward to fuel recovery.", protein:40, cal:500 },
+    { icon:"🍗", time:"4:30pm", label:"Meal 2 — Main Fuel",   desc:"200g chicken + 200g rice + veg. Lean protein and complex carbs.", protein:45, cal:550 },
+    { icon:"🥩", time:"6:30pm", label:"Meal 3 — Dinner",      desc:"200g beef mince or salmon + 250g potato. Protein variety.", protein:42, cal:600 },
+    { icon:"🥛", time:"8:30pm", label:"Meal 4 — Casein Shake",desc:"Casein protein + 1 tbsp almond butter. Slow-digesting overnight.", protein:35, cal:300 },
+  ],
+  mealsRest: [
+    { icon:"🥣", time:"2:00pm", label:"Meal 1 — Break Fast",  desc:"Oats 50g + whey 1 scoop + small banana. Reduced carbs.", protein:38, cal:420 },
+    { icon:"🍗", time:"4:30pm", label:"Meal 2 — Main",        desc:"200g chicken + 150g rice + extra veg. Carbs slightly lower.", protein:45, cal:480 },
+    { icon:"🥩", time:"6:30pm", label:"Meal 3 — Dinner",      desc:"200g beef or salmon + large salad + 150g potato.", protein:42, cal:500 },
+    { icon:"🥛", time:"8:30pm", label:"Meal 4 — Casein Shake",desc:"Casein only. No almond butter on rest days.", protein:30, cal:160 },
+  ],
+  supplements: [
+    { name:"Whey / Casein Protein",    verdict:"✅ PRIORITY", color:"var(--green)" },
+    { name:"Omega-3 Fish Oil",         verdict:"✅ PRIORITY", color:"var(--green)" },
+    { name:"Vitamin D3",               verdict:"✅ PRIORITY", color:"var(--green)" },
+    { name:"Multivitamin",             verdict:"✅ YES",      color:"var(--green)" },
+    { name:"Creatine Monohydrate",     verdict:"⚡ OPTIONAL", color:"var(--gold)"  },
+    { name:"Pre-workout / Coffee",     verdict:"⚡ OPTIONAL", color:"var(--gold)"  },
+    { name:"EAAs / BCAAs",             verdict:"❌ SKIP",     color:"var(--red)"   },
+    { name:"Glutamine",                verdict:"❌ SKIP",     color:"var(--red)"   },
+  ]
+};
+let STATE = JSON.parse(localStorage.getItem('kebafit-state') || 'null') || JSON.parse(JSON.stringify(DEFAULTS));
+let currentWeek = 1;
+let currentDay = 'push';
+let currentDayType = 'training';
+function saveState() { localStorage.setItem('kebafit-state', JSON.stringify(STATE)); }
+function renderDay() {
+  const days = { push:"PUSH", pull:"PULL", legs:"LEGS + CORE", full:"FULL BODY" };
+  const subs = { push:"Monday · Chest · Shoulders · Triceps", pull:"Tuesday · Back · Biceps · Rear Delts", legs:"Thursday · Quads · Hamstrings · Glutes · Core", full:"Saturday · Movement Quality" };
+  const exList = STATE.exercises[currentDay];
+  const w = Math.min(currentWeek - 1, 3);
+  let html = `<div class="day-header"><div class="day-title ${currentDay}">${days[currentDay]}</div><div class="day-sub">${subs[currentDay]}</div></div><div class="card">`;
+  exList.forEach((ex, i) => {
+    const sets = Array.isArray(ex.sets) ? ex.sets[w] : ex.sets;
+    const prevSets = Array.isArray(ex.sets) ? ex.sets[Math.max(w-1,0)] : ex.sets;
+    const progressed = w > 0 && sets > prevSets;
+    html += `<div class="exercise-row"><div class="exercise-num">${String(i+1).padStart(2,'0')}</div><div class="exercise-info"><div class="exercise-name">${ex.name}</div><div class="exercise-note">${ex.note}</div><div class="exercise-sets">${sets} × ${ex.reps}</div></div>${progressed ? `<div class="overload-badge">+SETS W${currentWeek}</div>` : ''}</div>`;
+  });
+  html += `</div>`;
+  const focuses = [
+    "Learn the movements. Perfect form over weight. Note how your back and shoulders feel.",
+    "Add 1 set to main lifts. If form was solid, add 2.5–5kg to compounds. Track in Hevy.",
+    "Volume peak. 4 sets on most exercises. Beat last week on something every session.",
+    "Intensity peak. Push harder. Deload follows — give it everything this week."
+  ];
+  html += `<div class="card card-sm" style="margin-top:10px;"><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text3);margin-bottom:6px;">WEEK ${currentWeek} FOCUS</div><div style="font-size:13px;color:var(--text2);">${focuses[w]}</div></div>`;
+  document.getElementById('day-content').innerHTML = html;
+}
+function renderMeals() {
+  const meals = currentDayType === 'training' ? STATE.mealsTraining : STATE.mealsRest;
+  const targets = currentDayType === 'training' ? STATE.training : STATE.rest;
+  document.getElementById('cal-val').textContent = targets.calories.toLocaleString();
+  document.getElementById('prot-val').textContent = targets.protein;
+  document.getElementById('carb-val').textContent = targets.carbs;
+  document.getElementById('fat-val').textContent = targets.fats;
+  let html = '';
+  meals.forEach(m => {
+    html += `<div class="meal-row"><div class="meal-icon">${m.icon}</div><div class="meal-info"><div class="meal-label">${m.label}</div><div class="meal-desc">${m.desc}</div></div><div class="meal-meta"><div class="meal-protein">${m.protein}g</div><div class="meal-punit">protein</div><div class="meal-time">${m.time}</div></div></div>`;
+  });
+  document.getElementById('meal-plan').innerHTML = html;
+  let suppHtml = '';
+  STATE.supplements.forEach(s => {
+    suppHtml += `<div class="supp-row"><div class="supp-dot" style="background:${s.color}"></div><div class="supp-name">${s.name}</div><div class="supp-verdict" style="color:${s.color}">${s.verdict}</div></div>`;
+  });
+  document.getElementById('supp-list').innerHTML = suppHtml;
+  document.getElementById('budget-daily').textContent = STATE.budgetDaily;
+  document.getElementById('budget-weekly').textContent = STATE.budgetWeekly;
+}
+function renderCoachNotes() {
+  ['training','nutrition'].forEach(tab => {
+    const note = STATE['coachNote' + tab.charAt(0).toUpperCase() + tab.slice(1)];
+    const el = document.getElementById(`coaching-note-${tab}`);
+    const textEl = document.getElementById(`coaching-note-${tab}-text`);
+    if (note && note.trim()) { el.style.display = 'block'; textEl.textContent = note; }
+    else { el.style.display = 'none'; }
+  });
+}
+function renderHeader() {
+  document.getElementById('header-meta').innerHTML = `<div>${STATE.weight}kg · 30s · Recomp</div><div><strong>16:8</strong> · 2pm–9pm</div>`;
+}
+function applyUpdate() {
+  const raw = document.getElementById('update-input').value.trim();
+  const log = document.getElementById('update-log');
+  if (!raw.startsWith('KEBA-UPDATE::')) { log.textContent = '❌ Invalid update code. Must start with KEBA-UPDATE::'; log.className = 'update-log error'; return; }
+  try {
+    const parts = raw.replace('KEBA-UPDATE::', '').split('::');
+    const changes = [];
+    parts.forEach(part => {
+      const [key, val] = part.split('=');
+      if (!key || val === undefined) return;
+      switch(key.trim()) {
+        case 'week': currentWeek = parseInt(val); document.querySelectorAll('.week-btn').forEach((b,i) => b.classList.toggle('active', i === currentWeek-1)); changes.push('week → ' + val); break;
+        case 'weight': STATE.weight = parseFloat(val); changes.push('weight → ' + val + 'kg'); break;
+        case 'calories': STATE.training.calories = parseInt(val); changes.push('training calories → ' + val); break;
+        case 'caloriesRest': STATE.rest.calories = parseInt(val); changes.push('rest calories → ' + val); break;
+        case 'protein': STATE.training.protein = parseInt(val); STATE.rest.protein = parseInt(val); changes.push('protein → ' + val + 'g'); break;
+        case 'carbsTraining': STATE.training.carbs = parseInt(val); changes.push('training carbs → ' + val + 'g'); break;
+        case 'carbsRest': STATE.rest.carbs = parseInt(val); changes.push('rest carbs → ' + val + 'g'); break;
+        case 'fatsTraining': STATE.training.fats = parseInt(val); changes.push('training fats → ' + val + 'g'); break;
+        case 'fatsRest': STATE.rest.fats = parseInt(val); changes.push('rest fats → ' + val + 'g'); break;
+        case 'noteTraining': STATE.coachNoteTraining = val.replace(/\|/g, '\n'); changes.push('coach note (training) updated'); break;
+        case 'noteNutrition': STATE.coachNoteNutrition = val.replace(/\|/g, '\n'); changes.push('coach note (nutrition) updated'); break;
+        case 'budgetDaily': STATE.budgetDaily = val; changes.push('daily budget → ' + val); break;
+        case 'swapExercise': { const [loc, newName] = val.split('>'); const [dayKey, idxStr] = loc.split('.'); const idx = parseInt(idxStr); if (STATE.exercises[dayKey] && STATE.exercises[dayKey][idx]) { STATE.exercises[dayKey][idx].name = newName; changes.push(`swapped ${dayKey} exercise ${idx+1} → ${newName}`); } break; }
+        case 'exerciseNote': { const [loc, newNote] = val.split('>'); const [dayKey, idxStr] = loc.split('.'); const idx = parseInt(idxStr); if (STATE.exercises[dayKey] && STATE.exercises[dayKey][idx]) { STATE.exercises[dayKey][idx].note = newNote; changes.push(`updated note for ${dayKey} exercise ${idx+1}`); } break; }
+        case 'sets': { const [loc, setsStr] = val.split('>'); const [dayKey, idxStr] = loc.split('.'); const idx = parseInt(idxStr); if (STATE.exercises[dayKey] && STATE.exercises[dayKey][idx]) { STATE.exercises[dayKey][idx].sets = setsStr.split(',').map(Number); changes.push(`updated sets for ${dayKey} exercise ${idx+1}`); } break; }
+        case 'meal1Training': case 'meal2Training': case 'meal3Training': case 'meal4Training': { const mIdx = parseInt(key.replace('meal','').replace('Training','')) - 1; if (STATE.mealsTraining[mIdx]) { STATE.mealsTraining[mIdx].desc = val.replace(/\|/g,' '); changes.push(`meal ${mIdx+1} training updated`); } break; }
+        case 'meal1Rest': case 'meal2Rest': case 'meal3Rest': case 'meal4Rest': { const mIdx = parseInt(key.replace('meal','').replace('Rest','')) - 1; if (STATE.mealsRest[mIdx]) { STATE.mealsRest[mIdx].desc = val.replace(/\|/g,' '); changes.push(`meal ${mIdx+1} rest updated`); } break; }
+      }
+    });
+    saveState();
+    renderHeader(); renderDay(); renderMeals(); renderCoachNotes();
+    document.getElementById('update-input').value = '';
+    log.textContent = '✅ Applied: ' + changes.join(' · ');
+    log.className = 'update-log success';
+  } catch(e) { log.textContent = '❌ Parse error — check the update code format.'; log.className = 'update-log error'; }
+}
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'nutrition') renderMeals();
+}
+function selectWeek(w, btn) {
+  currentWeek = w;
+  document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const isDeload = w === 5;
+  document.getElementById('deload-banner').style.display = isDeload ? 'block' : 'none';
+  document.getElementById('training-content').style.display = isDeload ? 'none' : 'block';
+  if (!isDeload) renderDay();
+}
+function selectDay(day, btn) {
+  currentDay = day;
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDay();
+}
+function setDayType(type, btn) {
+  currentDayType = type;
+  document.querySelectorAll('.carb-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMeals();
+}
+function copyCheckin() {
+  const text = `📊 KEBA-FIT WEEKLY CHECK-IN\n━━━━━━━━━━━━━━━━━━━━━━\nWeek: ${document.getElementById('ci-week').value}\nWeight: ${document.getElementById('ci-weight').value || '—'}kg\nSessions: ${document.getElementById('ci-sessions').value}\nProtein: ${document.getElementById('ci-protein').value}\nNutrition: ${document.getElementById('ci-nutrition').value}\nEnergy & Recovery: ${document.getElementById('ci-energy').value}\nBack/Shoulder: ${document.getElementById('ci-injury').value}\n\n🏆 Biggest Win:\n${document.getElementById('ci-win').value || '—'}\n\n❓ Challenge / Question:\n${document.getElementById('ci-challenge').value || '—'}\n━━━━━━━━━━━━━━━━━━━━━━\nPlease review my week and give me a KEBA-UPDATE code with any adjustments for next week.`;
+  navigator.clipboard.writeText(text).then(() => {
+    const el = document.getElementById('copy-success');
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 3000);
+  });
+}
+renderHeader();
+renderDay();
+renderMeals();
+renderCoachNotes();
+</script>
+</body>
+</html>
