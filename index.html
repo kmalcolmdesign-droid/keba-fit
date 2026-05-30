@@ -105,6 +105,7 @@
   .form-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
   .primary-btn { width: 100%; padding: 16px; background: var(--gold); border: none; border-radius: 3px; color: #000; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; cursor: pointer; letter-spacing: 0.05em; transition: background 0.2s; margin-top: 8px; }
   .primary-btn:active { background: var(--gold2); }
+  .primary-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .success-msg { text-align: center; font-family: 'Space Mono', monospace; font-size: 11px; color: var(--green); margin-top: 8px; display: none; }
   .update-box { background: var(--bg3); border: 1px solid var(--border2); border-radius: 4px; padding: 16px; margin-bottom: 16px; }
   .update-box-title { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--gold); letter-spacing: 0.15em; margin-bottom: 10px; }
@@ -126,6 +127,24 @@
   .coaching-note { background: rgba(201,168,76,0.06); border: 1px solid rgba(201,168,76,0.15); border-radius: 4px; padding: 14px; margin-bottom: 16px; }
   .coaching-note-label { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--gold); letter-spacing: 0.15em; margin-bottom: 6px; }
   .coaching-note-text { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+  /* PROGRESS TAB */
+  .progress-stat { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 16px 10px; flex: 1; text-align: center; }
+  .progress-stat-val { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; color: var(--gold2); }
+  .progress-stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+  .progress-entry { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; padding: 14px 16px; margin-bottom: 10px; }
+  .progress-entry-week { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--gold); margin-bottom: 6px; }
+  .progress-entry-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .progress-entry-row:last-child { border-bottom: none; }
+  .progress-entry-key { color: var(--text2); }
+  .progress-entry-val { font-family: 'Space Mono', monospace; color: var(--text); font-size: 12px; }
+  .notion-status { display: flex; align-items: center; gap: 8px; font-family: 'Space Mono', monospace; font-size: 10px; padding: 10px 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: 3px; margin-bottom: 16px; }
+  .notion-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); flex-shrink: 0; }
+  .notion-dot.synced { background: var(--green); }
+  .notion-dot.syncing { background: var(--gold); animation: pulse 1s infinite; }
+  .notion-dot.error { background: var(--red); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
   @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
   .tab-panel.active > * { animation: fadeUp 0.3s ease both; }
   .tab-panel.active > *:nth-child(2) { animation-delay: 0.04s; }
@@ -142,7 +161,10 @@
       <div><strong>16:8</strong> · 2pm–9pm</div>
     </div>
   </div>
+
   <div class="content">
+
+    <!-- TRAINING TAB -->
     <div class="tab-panel active" id="tab-training">
       <div id="coaching-note-training" class="coaching-note" style="display:none;">
         <div class="coaching-note-label">📣 COACH NOTE</div>
@@ -171,6 +193,8 @@
         <div id="day-content"></div>
       </div>
     </div>
+
+    <!-- NUTRITION TAB -->
     <div class="tab-panel" id="tab-nutrition">
       <div id="coaching-note-nutrition" class="coaching-note" style="display:none;">
         <div class="coaching-note-label">📣 COACH NOTE</div>
@@ -215,11 +239,13 @@
       <div class="card" id="supp-list"></div>
       <div class="section-label">Budget</div>
       <div class="card">
-        <div class="info-row"><span class="info-key">Est. daily cost</span><span class="info-val gold" id="budget-daily">£6 – £8</span></div>
-        <div class="info-row"><span class="info-key">Est. weekly cost</span><span class="info-val gold" id="budget-weekly">£42 – £56</span></div>
+        <div class="info-row"><span class="info-key">Est. daily cost</span><span class="info-val gold" id="budget-daily">€6 – €8</span></div>
+        <div class="info-row"><span class="info-key">Est. weekly cost</span><span class="info-val gold" id="budget-weekly">€42 – €56</span></div>
         <div class="info-row"><span class="info-key">Best protein sources</span><span class="info-val">Chicken · Eggs · Mince</span></div>
       </div>
     </div>
+
+    <!-- CHECK-IN TAB -->
     <div class="tab-panel" id="tab-checkin">
       <div class="update-box">
         <div class="update-box-title">⚡ PASTE CLAUDE UPDATE</div>
@@ -228,39 +254,109 @@
         <button class="update-btn" onclick="applyUpdate()">APPLY UPDATE</button>
         <div class="update-log" id="update-log"></div>
       </div>
+
       <div class="section-label">Weekly Check-In</div>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6;">Fill this in, copy, and paste directly into Claude for your weekly coaching review.</p>
-      <div class="form-group"><label class="form-label">Week Number</label><select class="form-select" id="ci-week"><option>Week 1</option><option>Week 2</option><option>Week 3</option><option>Week 4</option><option>Week 5 (Deload)</option><option>Week 6+</option></select></div>
-      <div class="form-group"><label class="form-label">Current Weight (kg)</label><input class="form-input" id="ci-weight" type="number" placeholder="e.g. 93" step="0.1"/></div>
-      <div class="form-group"><label class="form-label">Sessions Completed</label><select class="form-select" id="ci-sessions"><option>4/4 — Full week</option><option>3/4 — Missed one</option><option>2/4 — Struggled</option><option>1/4 — Rough week</option><option>0/4 — Missed everything</option></select></div>
-      <div class="form-group"><label class="form-label">Protein Target Hit?</label><select class="form-select" id="ci-protein"><option>Yes — consistently 160g+</option><option>Mostly — 130–160g average</option><option>Struggled — under 130g most days</option></select></div>
-      <div class="form-group"><label class="form-label">Nutrition Compliance</label><select class="form-select" id="ci-nutrition"><option>On point — hit targets most days</option><option>Okay — a few off days</option><option>Poor — went off plan a lot</option></select></div>
-      <div class="form-group"><label class="form-label">Energy & Recovery (1–5)</label><select class="form-select" id="ci-energy"><option>5 — Felt great</option><option>4 — Good with some tired days</option><option>3 — Average</option><option>2 — Often tired or sore</option><option>1 — Burned out</option></select></div>
-      <div class="form-group"><label class="form-label">Back / Shoulder Issues?</label><select class="form-select" id="ci-injury"><option>No issues</option><option>Minor discomfort — manageable</option><option>Moderate pain — need to modify</option><option>Significant pain — need to stop</option></select></div>
-      <div class="form-group"><label class="form-label">Biggest Win This Week</label><textarea class="form-textarea" id="ci-win" placeholder="e.g. Hit protein every day, increased weight on rows..."></textarea></div>
-      <div class="form-group"><label class="form-label">Biggest Challenge / Question for Claude</label><textarea class="form-textarea" id="ci-challenge" placeholder="e.g. Struggling with meal timing on rest days..."></textarea></div>
-      <button class="primary-btn" onclick="copyCheckin()">📋 COPY CHECK-IN FOR CLAUDE</button>
-      <div class="success-msg" id="copy-success">✅ Copied! Paste directly into Claude.</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6;">Fill this in and tap Submit — it saves directly to your Notion Progress Log.</p>
+
+      <div class="notion-status" id="notion-status">
+        <div class="notion-dot" id="notion-dot"></div>
+        <span id="notion-status-text">Not synced yet</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Week Number</label>
+        <select class="form-select" id="ci-week">
+          <option>Week 1</option><option>Week 2</option><option>Week 3</option>
+          <option>Week 4</option><option>Week 5 (Deload)</option><option>Week 6+</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Current Weight (kg)</label>
+        <input class="form-input" id="ci-weight" type="number" placeholder="e.g. 93" step="0.1"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sessions Completed</label>
+        <select class="form-select" id="ci-sessions">
+          <option>4/4 — Full week</option><option>3/4 — Missed one</option>
+          <option>2/4 — Struggled</option><option>1/4 — Rough week</option><option>0/4 — Missed everything</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Protein Target Hit?</label>
+        <select class="form-select" id="ci-protein">
+          <option>Yes — consistently 160g+</option>
+          <option>Mostly — 130–160g average</option>
+          <option>Struggled — under 130g most days</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nutrition Compliance</label>
+        <select class="form-select" id="ci-nutrition">
+          <option value="On point">On point — hit targets most days</option>
+          <option value="Okay">Okay — a few off days</option>
+          <option value="Poor">Poor — went off plan a lot</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Energy & Recovery (1–5)</label>
+        <select class="form-select" id="ci-energy">
+          <option value="5">5 — Felt great</option><option value="4">4 — Good with some tired days</option>
+          <option value="3">3 — Average</option><option value="2">2 — Often tired or sore</option><option value="1">1 — Burned out</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Back / Shoulder Issues?</label>
+        <select class="form-select" id="ci-injury">
+          <option>No issues</option><option>Minor discomfort</option>
+          <option>Moderate pain</option><option>Significant pain</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Biggest Win This Week</label>
+        <textarea class="form-textarea" id="ci-win" placeholder="e.g. Hit protein every day, increased weight on rows..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Biggest Challenge / Question for Claude</label>
+        <textarea class="form-textarea" id="ci-challenge" placeholder="e.g. Struggling with meal timing on rest days..."></textarea>
+      </div>
+      <button class="primary-btn" id="submit-btn" onclick="submitCheckin()">📊 SAVE TO NOTION + COPY FOR CLAUDE</button>
+      <div class="success-msg" id="copy-success">✅ Saved to Notion & copied! Paste into Claude.</div>
     </div>
+
+    <!-- PROGRESS TAB -->
+    <div class="tab-panel" id="tab-progress">
+      <div class="section-label">Your Stats</div>
+      <div style="display:flex;gap:10px;margin-bottom:20px;" id="stats-row">
+        <div class="progress-stat"><div class="progress-stat-val" id="stat-weeks">—</div><div class="progress-stat-label">Weeks Logged</div></div>
+        <div class="progress-stat"><div class="progress-stat-val" id="stat-weight">—</div><div class="progress-stat-label">Current kg</div></div>
+        <div class="progress-stat"><div class="progress-stat-val" id="stat-change">—</div><div class="progress-stat-label">kg Change</div></div>
+      </div>
+      <div class="section-label">Progress Log</div>
+      <div id="progress-entries"><div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--text3);text-align:center;padding:30px;">Loading from Notion...</div></div>
+    </div>
+
+    <!-- SETUP TAB -->
     <div class="tab-panel" id="tab-setup">
       <div class="section-label">Your App Stack</div>
       <div class="card">
         <div class="info-row"><span class="info-key" style="font-size:15px;font-weight:700;">Hevy</span><span class="info-val" style="color:var(--green)">Workout Logging</span></div>
         <div class="info-row"><span class="info-key" style="font-size:15px;font-weight:700;">MyFitnessPal</span><span class="info-val" style="color:var(--green)">Calories & Protein</span></div>
         <div class="info-row"><span class="info-key" style="font-size:15px;font-weight:700;">Apple Health</span><span class="info-val" style="color:var(--green)">Central Sync Hub</span></div>
-        <div class="info-row"><span class="info-key" style="font-size:15px;font-weight:700;">Notion</span><span class="info-val" style="color:var(--green)">Weekly Check-ins</span></div>
+        <div class="info-row"><span class="info-key" style="font-size:15px;font-weight:700;">Notion</span><span class="info-val" style="color:var(--green)">Progress Tracking</span></div>
         <div class="info-row"><span class="info-key" style="font-size:15px;font-weight:700;">Claude</span><span class="info-val" style="color:var(--gold2)">Your Coach</span></div>
       </div>
       <div class="section-label">Setup Steps</div>
       <div class="card">
-        <div class="step-row"><div class="step-num">1</div><div class="step-content"><div class="step-app">HEVY</div><div class="step-title">Download & Log Workouts</div><div class="step-desc">Free on App Store. Create an account and add your workouts from the Training tab. Log every session here — track weights and reps to see progressive overload in action.</div></div></div>
-        <div class="step-row"><div class="step-num">2</div><div class="step-content"><div class="step-app">MYFITNESSPAL</div><div class="step-title">Set Targets & Log Food</div><div class="step-desc">Set daily targets: 2,300 cal / 170g protein. Use barcode scanner for every meal. Switch between training day and rest day targets using the toggle in the Nutrition tab.</div></div></div>
-        <div class="step-row"><div class="step-num">3</div><div class="step-content"><div class="step-app">APPLE HEALTH + WATCH</div><div class="step-title">Connect Everything</div><div class="step-desc">Enable Apple Health sync in both Hevy and MFP settings. Your Apple Watch feeds in automatically. Apple Health becomes your single source of truth for all activity data.</div></div></div>
-        <div class="step-row"><div class="step-num">4</div><div class="step-content"><div class="step-app">NOTION + CLAUDE</div><div class="step-title">Weekly Check-in System</div><div class="step-desc">Each week, fill in the Check-in tab, copy it and paste to Claude. Claude reviews your week, gives coaching adjustments, and sends back an update code you paste into this app.</div></div></div>
-        <div class="step-row"><div class="step-num">5</div><div class="step-content"><div class="step-app">PWA · IPHONE</div><div class="step-title">Save to Home Screen</div><div class="step-desc">Open your Netlify URL in Safari. Tap Share → "Add to Home Screen" → Add. keba-fit lives on your home screen like a native app.</div></div></div>
+        <div class="step-row"><div class="step-num">1</div><div class="step-content"><div class="step-app">HEVY</div><div class="step-title">Download & Log Workouts</div><div class="step-desc">Free on App Store. Log every session — track weights and reps to see progressive overload in action.</div></div></div>
+        <div class="step-row"><div class="step-num">2</div><div class="step-content"><div class="step-app">MYFITNESSPAL</div><div class="step-title">Set Targets & Log Food</div><div class="step-desc">Set daily targets: 2,300 cal / 170g protein. Use barcode scanner for every meal.</div></div></div>
+        <div class="step-row"><div class="step-num">3</div><div class="step-content"><div class="step-app">APPLE HEALTH + WATCH</div><div class="step-title">Connect Everything</div><div class="step-desc">Enable Apple Health sync in both Hevy and MFP. Apple Health becomes your single source of truth.</div></div></div>
+        <div class="step-row"><div class="step-num">4</div><div class="step-content"><div class="step-app">NOTION + CLAUDE</div><div class="step-title">Weekly Check-in System</div><div class="step-desc">Fill in the Check-in tab weekly. It saves to Notion automatically and copies a summary for Claude coaching.</div></div></div>
+        <div class="step-row"><div class="step-num">5</div><div class="step-content"><div class="step-app">PWA · IPHONE</div><div class="step-title">Save to Home Screen</div><div class="step-desc">Open kebafit.netlify.app in Safari. Tap Share → "Add to Home Screen" → Add.</div></div></div>
       </div>
     </div>
+
   </div>
+
   <nav class="nav">
     <button class="nav-btn active" onclick="switchTab('training',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4v16M18 4v16M6 12h12M2 7h4M18 7h4M2 17h4M18 17h4"/></svg>
@@ -274,79 +370,196 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
       <span>Check-in</span>
     </button>
+    <button class="nav-btn" onclick="switchTab('progress',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>Progress</span>
+    </button>
     <button class="nav-btn" onclick="switchTab('setup',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
       <span>Setup</span>
     </button>
   </nav>
 </div>
+
 <script>
 const DEFAULTS = {
   weight: 93, week: 1,
   training: { calories: 2300, protein: 170, carbs: 220, fats: 65 },
   rest:     { calories: 1900, protein: 170, carbs: 140, fats: 60 },
-  budgetDaily: '£6 – £8', budgetWeekly: '£42 – £56',
+  budgetDaily: '€6 – €8', budgetWeekly: '€42 – €56',
   coachNoteTraining: '', coachNoteNutrition: '',
   exercises: {
     push: [
-      { name: "Incline DB Press",          sets: [3,4,4,4], reps: "10–12", note: "Safer angle for chest & shoulders. Controlled eccentric." },
-      { name: "Cable Chest Fly",           sets: [3,3,4,4], reps: "12–15", note: "Full stretch at bottom. Squeeze at top." },
-      { name: "Seated DB Shoulder Press",  sets: [3,3,4,4], reps: "10–12", note: "Seated = less lower back load." },
-      { name: "Cable Lateral Raise",       sets: [3,3,3,4], reps: "15–20", note: "Light weight, strict form. Cable keeps tension." },
-      { name: "Tricep Pushdown (rope)",    sets: [3,3,4,4], reps: "12–15", note: "Elbows tucked. Full extension." },
+      { name: "Incline DB Press", sets: [3,4,4,4], reps: "10–12", note: "Safer angle for chest & shoulders. Controlled eccentric." },
+      { name: "Cable Chest Fly", sets: [3,3,4,4], reps: "12–15", note: "Full stretch at bottom. Squeeze at top." },
+      { name: "Seated DB Shoulder Press", sets: [3,3,4,4], reps: "10–12", note: "Seated = less lower back load." },
+      { name: "Cable Lateral Raise", sets: [3,3,3,4], reps: "15–20", note: "Light weight, strict form. Cable keeps tension." },
+      { name: "Tricep Pushdown (rope)", sets: [3,3,4,4], reps: "12–15", note: "Elbows tucked. Full extension." },
     ],
     pull: [
-      { name: "Seated Cable Row",           sets: [3,4,4,4], reps: "10–12", note: "Neutral spine. Pull to lower chest." },
-      { name: "Lat Pulldown (wide grip)",   sets: [3,3,4,4], reps: "10–12", note: "Pull to upper chest. Control the upward phase." },
-      { name: "Chest-Supported Row",        sets: [3,3,4,4], reps: "10–12", note: "Removes lower back load completely." },
-      { name: "Face Pulls (cable)",         sets: [3,3,3,4], reps: "15–20", note: "Critical for shoulder health." },
-      { name: "DB Hammer Curl",             sets: [3,3,4,4], reps: "12–15", note: "Neutral grip. No swinging." },
+      { name: "Seated Cable Row", sets: [3,4,4,4], reps: "10–12", note: "Neutral spine. Pull to lower chest." },
+      { name: "Lat Pulldown (wide grip)", sets: [3,3,4,4], reps: "10–12", note: "Pull to upper chest. Control the upward phase." },
+      { name: "Chest-Supported Row", sets: [3,3,4,4], reps: "10–12", note: "Removes lower back load completely." },
+      { name: "Face Pulls (cable)", sets: [3,3,3,4], reps: "15–20", note: "Critical for shoulder health." },
+      { name: "DB Hammer Curl", sets: [3,3,4,4], reps: "12–15", note: "Neutral grip. No swinging." },
     ],
     legs: [
-      { name: "Leg Press",                        sets: [4,4,4,4], reps: "10–12", note: "No heavy spinal load. Full range." },
-      { name: "Romanian Deadlift (light)",        sets: [3,3,4,4], reps: "10–12", note: "Hinge not bend. Neutral back." },
-      { name: "Leg Curl (machine)",               sets: [3,3,4,4], reps: "12–15", note: "Full range. Slow up phase." },
-      { name: "Walking Lunges (BW or light DB)",  sets: [3,3,3,4], reps: "10 each", note: "Build base before loading." },
-      { name: "Dead Bug",                         sets: [3,3,3,4], reps: "8–10/side", note: "Lower back flat on floor always." },
-      { name: "Plank",                            sets: [3,3,3,4], reps: "30–60s", note: "No sagging hips. Neutral neck." },
+      { name: "Leg Press", sets: [4,4,4,4], reps: "10–12", note: "No heavy spinal load. Full range." },
+      { name: "Romanian Deadlift (light)", sets: [3,3,4,4], reps: "10–12", note: "Hinge not bend. Neutral back." },
+      { name: "Leg Curl (machine)", sets: [3,3,4,4], reps: "12–15", note: "Full range. Slow up phase." },
+      { name: "Walking Lunges (BW or light DB)", sets: [3,3,3,4], reps: "10 each", note: "Build base before loading." },
+      { name: "Dead Bug", sets: [3,3,3,4], reps: "8–10/side", note: "Lower back flat on floor always." },
+      { name: "Plank", sets: [3,3,3,4], reps: "30–60s", note: "No sagging hips. Neutral neck." },
     ],
     full: [
-      { name: "Goblet Squat",             sets: [3,3,3,4], reps: "12–15", note: "Pattern the squat safely. Upright torso." },
-      { name: "Cable Row (light)",        sets: [3,3,3,4], reps: "12–15", note: "Lower intensity. Mind-muscle connection." },
+      { name: "Goblet Squat", sets: [3,3,3,4], reps: "12–15", note: "Pattern the squat safely. Upright torso." },
+      { name: "Cable Row (light)", sets: [3,3,3,4], reps: "12–15", note: "Lower intensity. Mind-muscle connection." },
       { name: "Incline DB Press (light)", sets: [3,3,3,4], reps: "12–15", note: "Slightly lighter than Monday." },
-      { name: "Step-Ups (bodyweight)",    sets: [3,3,3,3], reps: "10 each", note: "Full hip extension at top." },
-      { name: "Band Pull-Apart",          sets: [3,3,3,3], reps: "20",      note: "Shoulder health. Arms straight." },
-      { name: "Cable Crunch",             sets: [3,3,3,4], reps: "12–15",   note: "Core braced, not crunched." },
+      { name: "Step-Ups (bodyweight)", sets: [3,3,3,3], reps: "10 each", note: "Full hip extension at top." },
+      { name: "Band Pull-Apart", sets: [3,3,3,3], reps: "20", note: "Shoulder health. Arms straight." },
+      { name: "Cable Crunch", sets: [3,3,3,4], reps: "12–15", note: "Core braced, not crunched." },
     ]
   },
   mealsTraining: [
-    { icon:"🥣", time:"2:00pm", label:"Meal 1 — Break Fast",  desc:"Oats 80g + whey 1 scoop + banana. Carb-forward to fuel recovery.", protein:40, cal:500 },
-    { icon:"🍗", time:"4:30pm", label:"Meal 2 — Main Fuel",   desc:"200g chicken + 200g rice + veg. Lean protein and complex carbs.", protein:45, cal:550 },
-    { icon:"🥩", time:"6:30pm", label:"Meal 3 — Dinner",      desc:"200g beef mince or salmon + 250g potato. Protein variety.", protein:42, cal:600 },
-    { icon:"🥛", time:"8:30pm", label:"Meal 4 — Casein Shake",desc:"Casein protein + 1 tbsp almond butter. Slow-digesting overnight.", protein:35, cal:300 },
+    { icon:"🥣", time:"2:00pm", label:"Meal 1 — Break Fast", desc:"Oats 80g + whey 1 scoop + banana. Carb-forward to fuel recovery.", protein:40, cal:500 },
+    { icon:"🍗", time:"4:30pm", label:"Meal 2 — Main Fuel", desc:"200g chicken + 200g rice + veg. Lean protein and complex carbs.", protein:45, cal:550 },
+    { icon:"🥩", time:"6:30pm", label:"Meal 3 — Dinner", desc:"200g beef mince or salmon + 250g potato. Protein variety.", protein:42, cal:600 },
+    { icon:"🥛", time:"8:30pm", label:"Meal 4 — Casein Shake", desc:"Casein protein + 1 tbsp almond butter. Slow-digesting overnight.", protein:35, cal:300 },
   ],
   mealsRest: [
-    { icon:"🥣", time:"2:00pm", label:"Meal 1 — Break Fast",  desc:"Oats 50g + whey 1 scoop + small banana. Reduced carbs.", protein:38, cal:420 },
-    { icon:"🍗", time:"4:30pm", label:"Meal 2 — Main",        desc:"200g chicken + 150g rice + extra veg. Carbs slightly lower.", protein:45, cal:480 },
-    { icon:"🥩", time:"6:30pm", label:"Meal 3 — Dinner",      desc:"200g beef or salmon + large salad + 150g potato.", protein:42, cal:500 },
-    { icon:"🥛", time:"8:30pm", label:"Meal 4 — Casein Shake",desc:"Casein only. No almond butter on rest days.", protein:30, cal:160 },
+    { icon:"🥣", time:"2:00pm", label:"Meal 1 — Break Fast", desc:"Oats 50g + whey 1 scoop + small banana. Reduced carbs.", protein:38, cal:420 },
+    { icon:"🍗", time:"4:30pm", label:"Meal 2 — Main", desc:"200g chicken + 150g rice + extra veg. Carbs slightly lower.", protein:45, cal:480 },
+    { icon:"🥩", time:"6:30pm", label:"Meal 3 — Dinner", desc:"200g beef or salmon + large salad + 150g potato.", protein:42, cal:500 },
+    { icon:"🥛", time:"8:30pm", label:"Meal 4 — Casein Shake", desc:"Casein only. No almond butter on rest days.", protein:30, cal:160 },
   ],
   supplements: [
-    { name:"Whey / Casein Protein",    verdict:"✅ PRIORITY", color:"var(--green)" },
-    { name:"Omega-3 Fish Oil",         verdict:"✅ PRIORITY", color:"var(--green)" },
-    { name:"Vitamin D3",               verdict:"✅ PRIORITY", color:"var(--green)" },
-    { name:"Multivitamin",             verdict:"✅ YES",      color:"var(--green)" },
-    { name:"Creatine Monohydrate",     verdict:"⚡ OPTIONAL", color:"var(--gold)"  },
-    { name:"Pre-workout / Coffee",     verdict:"⚡ OPTIONAL", color:"var(--gold)"  },
-    { name:"EAAs / BCAAs",             verdict:"❌ SKIP",     color:"var(--red)"   },
-    { name:"Glutamine",                verdict:"❌ SKIP",     color:"var(--red)"   },
+    { name:"Whey / Casein Protein", verdict:"✅ PRIORITY", color:"var(--green)" },
+    { name:"Omega-3 Fish Oil", verdict:"✅ PRIORITY", color:"var(--green)" },
+    { name:"Vitamin D3", verdict:"✅ PRIORITY", color:"var(--green)" },
+    { name:"Multivitamin", verdict:"✅ YES", color:"var(--green)" },
+    { name:"Creatine Monohydrate", verdict:"⚡ OPTIONAL", color:"var(--gold)" },
+    { name:"Pre-workout / Coffee", verdict:"⚡ OPTIONAL", color:"var(--gold)" },
+    { name:"EAAs / BCAAs", verdict:"❌ SKIP", color:"var(--red)" },
+    { name:"Glutamine", verdict:"❌ SKIP", color:"var(--red)" },
   ]
 };
+
 let STATE = JSON.parse(localStorage.getItem('kebafit-state') || 'null') || JSON.parse(JSON.stringify(DEFAULTS));
 let currentWeek = 1;
 let currentDay = 'push';
 let currentDayType = 'training';
+
 function saveState() { localStorage.setItem('kebafit-state', JSON.stringify(STATE)); }
+
+// ─── NOTION SYNC ──────────────────────────────────────────────────────────
+
+const API = '/.netlify/functions/notion';
+
+function setNotionStatus(state, msg) {
+  const dot = document.getElementById('notion-dot');
+  const text = document.getElementById('notion-status-text');
+  dot.className = 'notion-dot ' + state;
+  text.textContent = msg;
+}
+
+async function loadProgress() {
+  try {
+    const res = await fetch(API);
+    const data = await res.json();
+    renderProgress(data.entries || []);
+  } catch(e) {
+    document.getElementById('progress-entries').innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:11px;color:var(--red);text-align:center;padding:20px;">Could not load from Notion.</div>';
+  }
+}
+
+function renderProgress(entries) {
+  const container = document.getElementById('progress-entries');
+  if (!entries.length) {
+    container.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:11px;color:var(--text3);text-align:center;padding:30px;">No check-ins yet. Submit your first one in the Check-in tab!</div>';
+    document.getElementById('stat-weeks').textContent = '0';
+    return;
+  }
+  document.getElementById('stat-weeks').textContent = entries.length;
+  const weights = entries.filter(e => e.weight).map(e => e.weight);
+  if (weights.length) {
+    document.getElementById('stat-weight').textContent = weights[0] + 'kg';
+    if (weights.length > 1) {
+      const change = (weights[0] - weights[weights.length - 1]).toFixed(1);
+      const sign = change > 0 ? '+' : '';
+      document.getElementById('stat-change').textContent = sign + change;
+    }
+  }
+  container.innerHTML = entries.map(e => `
+    <div class="progress-entry">
+      <div class="progress-entry-week">${e.week} · ${e.date || ''}</div>
+      ${e.weight ? `<div class="progress-entry-row"><span class="progress-entry-key">Weight</span><span class="progress-entry-val">${e.weight}kg</span></div>` : ''}
+      ${e.sessions ? `<div class="progress-entry-row"><span class="progress-entry-key">Sessions</span><span class="progress-entry-val">${e.sessions}</span></div>` : ''}
+      ${e.energy ? `<div class="progress-entry-row"><span class="progress-entry-key">Energy</span><span class="progress-entry-val">${e.energy}/5</span></div>` : ''}
+      ${e.protein ? `<div class="progress-entry-row"><span class="progress-entry-key">Protein</span><span class="progress-entry-val">${e.protein}</span></div>` : ''}
+      ${e.backShoulder ? `<div class="progress-entry-row"><span class="progress-entry-key">Back/Shoulder</span><span class="progress-entry-val">${e.backShoulder}</span></div>` : ''}
+      ${e.biggestWin ? `<div class="progress-entry-row"><span class="progress-entry-key">Win</span><span class="progress-entry-val">${e.biggestWin}</span></div>` : ''}
+      ${e.coachNotes ? `<div class="progress-entry-row"><span class="progress-entry-key">Coach</span><span class="progress-entry-val">${e.coachNotes}</span></div>` : ''}
+    </div>`).join('');
+}
+
+async function submitCheckin() {
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  setNotionStatus('syncing', 'Saving to Notion...');
+
+  const nutritionEl = document.getElementById('ci-nutrition');
+  const nutritionVal = nutritionEl.options[nutritionEl.selectedIndex].value;
+  const energyEl = document.getElementById('ci-energy');
+
+  const payload = {
+    week: document.getElementById('ci-week').value,
+    date: new Date().toISOString().split('T')[0],
+    weight: document.getElementById('ci-weight').value || null,
+    sessions: document.getElementById('ci-sessions').value,
+    protein: document.getElementById('ci-protein').value,
+    nutrition: nutritionVal,
+    energy: energyEl.value,
+    backShoulder: document.getElementById('ci-injury').value,
+    biggestWin: document.getElementById('ci-win').value,
+    challenge: document.getElementById('ci-challenge').value,
+    coachNotes: ''
+  };
+
+  try {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      setNotionStatus('synced', 'Saved to Notion ✓');
+
+      // Also copy for Claude
+      const text = `📊 KEBA-FIT WEEKLY CHECK-IN\n━━━━━━━━━━━━━━━━━━━━━━\nWeek: ${payload.week}\nWeight: ${payload.weight || '—'}kg\nSessions: ${payload.sessions}\nProtein: ${payload.protein}\nNutrition: ${payload.nutrition}\nEnergy & Recovery: ${payload.energy}/5\nBack/Shoulder: ${payload.backShoulder}\n\n🏆 Biggest Win:\n${payload.biggestWin || '—'}\n\n❓ Challenge / Question:\n${payload.challenge || '—'}\n━━━━━━━━━━━━━━━━━━━━━━\nPlease review my week and give me a KEBA-UPDATE code with any adjustments for next week.`;
+      navigator.clipboard.writeText(text).catch(() => {});
+
+      const el = document.getElementById('copy-success');
+      el.style.display = 'block';
+      setTimeout(() => el.style.display = 'none', 4000);
+
+      // Update header weight if provided
+      if (payload.weight) { STATE.weight = parseFloat(payload.weight); saveState(); renderHeader(); }
+    } else {
+      setNotionStatus('error', 'Save failed — try again');
+    }
+  } catch(e) {
+    setNotionStatus('error', 'Connection error');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '📊 SAVE TO NOTION + COPY FOR CLAUDE';
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────
+
 function renderDay() {
   const days = { push:"PUSH", pull:"PULL", legs:"LEGS + CORE", full:"FULL BODY" };
   const subs = { push:"Monday · Chest · Shoulders · Triceps", pull:"Tuesday · Back · Biceps · Rear Delts", legs:"Thursday · Quads · Hamstrings · Glutes · Core", full:"Saturday · Movement Quality" };
@@ -369,6 +582,7 @@ function renderDay() {
   html += `<div class="card card-sm" style="margin-top:10px;"><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text3);margin-bottom:6px;">WEEK ${currentWeek} FOCUS</div><div style="font-size:13px;color:var(--text2);">${focuses[w]}</div></div>`;
   document.getElementById('day-content').innerHTML = html;
 }
+
 function renderMeals() {
   const meals = currentDayType === 'training' ? STATE.mealsTraining : STATE.mealsRest;
   const targets = currentDayType === 'training' ? STATE.training : STATE.rest;
@@ -389,6 +603,7 @@ function renderMeals() {
   document.getElementById('budget-daily').textContent = STATE.budgetDaily;
   document.getElementById('budget-weekly').textContent = STATE.budgetWeekly;
 }
+
 function renderCoachNotes() {
   ['training','nutrition'].forEach(tab => {
     const note = STATE['coachNote' + tab.charAt(0).toUpperCase() + tab.slice(1)];
@@ -398,13 +613,17 @@ function renderCoachNotes() {
     else { el.style.display = 'none'; }
   });
 }
+
 function renderHeader() {
   document.getElementById('header-meta').innerHTML = `<div>${STATE.weight}kg · 30s · Recomp</div><div><strong>16:8</strong> · 2pm–9pm</div>`;
 }
+
+// ─── UPDATE PARSER ────────────────────────────────────────────────────────
+
 function applyUpdate() {
   const raw = document.getElementById('update-input').value.trim();
   const log = document.getElementById('update-log');
-  if (!raw.startsWith('KEBA-UPDATE::')) { log.textContent = '❌ Invalid update code. Must start with KEBA-UPDATE::'; log.className = 'update-log error'; return; }
+  if (!raw.startsWith('KEBA-UPDATE::')) { log.textContent = '❌ Invalid update code.'; log.className = 'update-log error'; return; }
   try {
     const parts = raw.replace('KEBA-UPDATE::', '').split('::');
     const changes = [];
@@ -424,11 +643,11 @@ function applyUpdate() {
         case 'noteTraining': STATE.coachNoteTraining = val.replace(/\|/g, '\n'); changes.push('coach note (training) updated'); break;
         case 'noteNutrition': STATE.coachNoteNutrition = val.replace(/\|/g, '\n'); changes.push('coach note (nutrition) updated'); break;
         case 'budgetDaily': STATE.budgetDaily = val; changes.push('daily budget → ' + val); break;
-        case 'swapExercise': { const [loc, newName] = val.split('>'); const [dayKey, idxStr] = loc.split('.'); const idx = parseInt(idxStr); if (STATE.exercises[dayKey] && STATE.exercises[dayKey][idx]) { STATE.exercises[dayKey][idx].name = newName; changes.push(`swapped ${dayKey} exercise ${idx+1} → ${newName}`); } break; }
-        case 'exerciseNote': { const [loc, newNote] = val.split('>'); const [dayKey, idxStr] = loc.split('.'); const idx = parseInt(idxStr); if (STATE.exercises[dayKey] && STATE.exercises[dayKey][idx]) { STATE.exercises[dayKey][idx].note = newNote; changes.push(`updated note for ${dayKey} exercise ${idx+1}`); } break; }
-        case 'sets': { const [loc, setsStr] = val.split('>'); const [dayKey, idxStr] = loc.split('.'); const idx = parseInt(idxStr); if (STATE.exercises[dayKey] && STATE.exercises[dayKey][idx]) { STATE.exercises[dayKey][idx].sets = setsStr.split(',').map(Number); changes.push(`updated sets for ${dayKey} exercise ${idx+1}`); } break; }
-        case 'meal1Training': case 'meal2Training': case 'meal3Training': case 'meal4Training': { const mIdx = parseInt(key.replace('meal','').replace('Training','')) - 1; if (STATE.mealsTraining[mIdx]) { STATE.mealsTraining[mIdx].desc = val.replace(/\|/g,' '); changes.push(`meal ${mIdx+1} training updated`); } break; }
-        case 'meal1Rest': case 'meal2Rest': case 'meal3Rest': case 'meal4Rest': { const mIdx = parseInt(key.replace('meal','').replace('Rest','')) - 1; if (STATE.mealsRest[mIdx]) { STATE.mealsRest[mIdx].desc = val.replace(/\|/g,' '); changes.push(`meal ${mIdx+1} rest updated`); } break; }
+        case 'swapExercise': { const [loc, newName] = val.split('>'); const [dayKey, idxStr] = loc.split('.'); const idx = parseInt(idxStr); if (STATE.exercises[dayKey]?.[idx]) { STATE.exercises[dayKey][idx].name = newName; changes.push(`swapped ${dayKey} ex ${idx+1}`); } break; }
+        case 'exerciseNote': { const [loc, newNote] = val.split('>'); const [dayKey, idxStr] = loc.split('.'); const idx = parseInt(idxStr); if (STATE.exercises[dayKey]?.[idx]) { STATE.exercises[dayKey][idx].note = newNote; changes.push(`updated note`); } break; }
+        case 'sets': { const [loc, setsStr] = val.split('>'); const [dayKey, idxStr] = loc.split('.'); const idx = parseInt(idxStr); if (STATE.exercises[dayKey]?.[idx]) { STATE.exercises[dayKey][idx].sets = setsStr.split(',').map(Number); changes.push(`updated sets`); } break; }
+        case 'meal1Training': case 'meal2Training': case 'meal3Training': case 'meal4Training': { const mIdx = parseInt(key.replace('meal','').replace('Training','')) - 1; if (STATE.mealsTraining[mIdx]) { STATE.mealsTraining[mIdx].desc = val.replace(/\|/g,' '); changes.push(`meal ${mIdx+1} training`); } break; }
+        case 'meal1Rest': case 'meal2Rest': case 'meal3Rest': case 'meal4Rest': { const mIdx = parseInt(key.replace('meal','').replace('Rest','')) - 1; if (STATE.mealsRest[mIdx]) { STATE.mealsRest[mIdx].desc = val.replace(/\|/g,' '); changes.push(`meal ${mIdx+1} rest`); } break; }
       }
     });
     saveState();
@@ -436,15 +655,20 @@ function applyUpdate() {
     document.getElementById('update-input').value = '';
     log.textContent = '✅ Applied: ' + changes.join(' · ');
     log.className = 'update-log success';
-  } catch(e) { log.textContent = '❌ Parse error — check the update code format.'; log.className = 'update-log error'; }
+  } catch(e) { log.textContent = '❌ Parse error.'; log.className = 'update-log error'; }
 }
+
+// ─── CONTROLS ────────────────────────────────────────────────────────────
+
 function switchTab(tab, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
   btn.classList.add('active');
   if (tab === 'nutrition') renderMeals();
+  if (tab === 'progress') loadProgress();
 }
+
 function selectWeek(w, btn) {
   currentWeek = w;
   document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
@@ -454,26 +678,22 @@ function selectWeek(w, btn) {
   document.getElementById('training-content').style.display = isDeload ? 'none' : 'block';
   if (!isDeload) renderDay();
 }
+
 function selectDay(day, btn) {
   currentDay = day;
   document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderDay();
 }
+
 function setDayType(type, btn) {
   currentDayType = type;
   document.querySelectorAll('.carb-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderMeals();
 }
-function copyCheckin() {
-  const text = `📊 KEBA-FIT WEEKLY CHECK-IN\n━━━━━━━━━━━━━━━━━━━━━━\nWeek: ${document.getElementById('ci-week').value}\nWeight: ${document.getElementById('ci-weight').value || '—'}kg\nSessions: ${document.getElementById('ci-sessions').value}\nProtein: ${document.getElementById('ci-protein').value}\nNutrition: ${document.getElementById('ci-nutrition').value}\nEnergy & Recovery: ${document.getElementById('ci-energy').value}\nBack/Shoulder: ${document.getElementById('ci-injury').value}\n\n🏆 Biggest Win:\n${document.getElementById('ci-win').value || '—'}\n\n❓ Challenge / Question:\n${document.getElementById('ci-challenge').value || '—'}\n━━━━━━━━━━━━━━━━━━━━━━\nPlease review my week and give me a KEBA-UPDATE code with any adjustments for next week.`;
-  navigator.clipboard.writeText(text).then(() => {
-    const el = document.getElementById('copy-success');
-    el.style.display = 'block';
-    setTimeout(() => el.style.display = 'none', 3000);
-  });
-}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
 renderHeader();
 renderDay();
 renderMeals();
