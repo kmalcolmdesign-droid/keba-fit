@@ -9,48 +9,83 @@
 <title>keba-fit</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
 <style>
+  /* ── DARK MODE (default) ── */
   :root {
     --bg: #0a0a0a; --bg2: #111111; --bg3: #181818;
     --border: #222222; --border2: #2a2a2a;
-    --text: #e8e8e8; --text2: #888888; --text3: #444444;
+    --text: #e8e8e8; --text2: #888888; --text3: #555555;
     --gold: #c9a84c; --gold2: #e8c96a;
     --green: #2ecc71; --red: #e74c3c; --blue: #3498db;
     --push: #e84a2e; --pull: #2e7de8; --legs: #2ebf71; --full: #c9a84c;
+    --shadow: none;
+    --toggle-bg: #222;
+    --toggle-icon: '☀️';
   }
+
+  /* ── LIGHT MODE ── */
+  [data-theme="light"] {
+    --bg: #f5f5f0; --bg2: #ffffff; --bg3: #eeede8;
+    --border: #e0ddd6; --border2: #d0cdc6;
+    --text: #1a1a1a; --text2: #666666; --text3: #999999;
+    --gold: #b8922a; --gold2: #c9a84c;
+    --green: #22a85a; --red: #c0392b; --blue: #2176ae;
+    --push: #c0392b; --pull: #2176ae; --legs: #22a85a; --full: #b8922a;
+    --shadow: 0 1px 4px rgba(0,0,0,0.08);
+    --toggle-bg: #e0ddd6;
+    --toggle-icon: '🌙';
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Barlow Condensed', sans-serif; overflow: hidden; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Barlow Condensed', sans-serif; overflow: hidden; transition: background 0.3s, color 0.3s; }
   .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
-  .header { padding: max(env(safe-area-inset-top),12px) 20px 12px; background: var(--bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+
+  /* HEADER */
+  .header { padding: max(env(safe-area-inset-top),12px) 20px 12px; background: var(--bg2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; box-shadow: var(--shadow); }
   .header-logo { font-family: 'Space Mono', monospace; font-size: 18px; color: var(--gold2); }
   .header-logo span { color: var(--text3); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
   .header-meta { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text3); text-align: right; line-height: 1.6; }
   .header-meta strong { color: var(--gold); }
+  .theme-toggle { background: var(--toggle-bg); border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; flex-shrink: 0; }
+  .theme-toggle:active { opacity: 0.7; }
+
+  /* CONTENT */
   .content { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
   .tab-panel { display: none; padding: 20px 16px 100px; }
   .tab-panel.active { display: block; }
-  .nav { display: flex; background: var(--bg2); border-top: 1px solid var(--border); padding-bottom: env(safe-area-inset-bottom,0px); flex-shrink: 0; z-index: 100; }
+
+  /* NAV */
+  .nav { display: flex; background: var(--bg2); border-top: 1px solid var(--border); padding-bottom: env(safe-area-inset-bottom,0px); flex-shrink: 0; z-index: 100; box-shadow: var(--shadow); }
   .nav-btn { flex: 1; padding: 12px 4px 10px; background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text3); transition: color 0.2s; }
   .nav-btn.active { color: var(--gold2); }
   .nav-btn svg { width: 20px; height: 20px; }
   .nav-btn span { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.05em; text-transform: uppercase; }
+
+  /* TYPOGRAPHY */
   .section-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: var(--text3); text-transform: uppercase; margin-bottom: 12px; margin-top: 28px; }
   .section-label:first-child { margin-top: 0; }
-  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; padding: 16px; margin-bottom: 10px; }
+
+  /* CARDS */
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 10px; box-shadow: var(--shadow); }
   .card-sm { padding: 12px 16px; }
   .info-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
   .info-row:last-child { border-bottom: none; }
   .info-key { font-size: 13px; color: var(--text2); }
   .info-val { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--text); }
   .info-val.gold { color: var(--gold2); }
+
+  /* SELECTORS */
   .week-selector { display: flex; gap: 8px; margin-bottom: 20px; }
-  .week-btn { flex: 1; padding: 10px 4px; background: var(--bg2); border: 1px solid var(--border); border-radius: 3px; color: var(--text2); font-family: 'Space Mono', monospace; font-size: 11px; cursor: pointer; transition: all 0.2s; text-align: center; }
-  .week-btn.active { background: var(--gold); border-color: var(--gold); color: #000; font-weight: 700; }
+  .week-btn { flex: 1; padding: 10px 4px; background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; color: var(--text2); font-family: 'Space Mono', monospace; font-size: 11px; cursor: pointer; transition: all 0.2s; text-align: center; box-shadow: var(--shadow); }
+  .week-btn.active { background: var(--gold); border-color: var(--gold); color: #fff; font-weight: 700; }
   .day-selector { display: flex; gap: 6px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px; }
-  .day-btn { flex-shrink: 0; padding: 8px 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: 3px; color: var(--text2); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .day-btn { flex-shrink: 0; padding: 8px 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; color: var(--text2); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: var(--shadow); }
   .day-btn[data-day="push"].active { background: var(--push); border-color: var(--push); color: #fff; }
   .day-btn[data-day="pull"].active { background: var(--pull); border-color: var(--pull); color: #fff; }
   .day-btn[data-day="legs"].active { background: var(--legs); border-color: var(--legs); color: #fff; }
-  .day-btn[data-day="full"].active { background: var(--full); border-color: var(--full); color: #000; }
+  .day-btn[data-day="full"].active { background: var(--full); border-color: var(--full); color: #fff; }
+
+  /* EXERCISES */
   .day-header { margin-bottom: 16px; }
   .day-title { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 2px; }
   .day-sub { font-size: 13px; color: var(--text2); font-weight: 400; }
@@ -63,19 +98,21 @@
   .exercise-name { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
   .exercise-note { font-size: 12px; color: var(--text2); font-style: italic; margin-bottom: 4px; }
   .exercise-sets { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--gold); }
-  .overload-badge { font-family: 'Space Mono', monospace; font-size: 9px; padding: 3px 7px; border-radius: 2px; background: rgba(201,168,76,0.12); color: var(--gold); border: 1px solid rgba(201,168,76,0.2); flex-shrink: 0; align-self: center; }
-  .deload-banner { background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.2); border-radius: 4px; padding: 16px; text-align: center; }
+  .overload-badge { font-family: 'Space Mono', monospace; font-size: 9px; padding: 3px 7px; border-radius: 4px; background: rgba(201,168,76,0.12); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); flex-shrink: 0; align-self: center; }
+  .deload-banner { background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.2); border-radius: 8px; padding: 16px; text-align: center; }
   .deload-banner h3 { font-size: 20px; font-weight: 700; color: var(--gold2); margin-bottom: 6px; }
   .deload-banner p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+  /* NUTRITION */
   .macro-row { display: flex; gap: 10px; margin-bottom: 16px; }
-  .macro-card { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 14px 10px; text-align: center; }
+  .macro-card { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 14px 10px; text-align: center; }
   .macro-val { font-family: 'Space Mono', monospace; font-size: 20px; color: var(--gold2); font-weight: 700; }
   .macro-unit { font-size: 9px; color: var(--text3); font-family: 'Space Mono', monospace; margin-bottom: 2px; }
   .macro-label { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; }
   .carb-toggle { display: flex; gap: 8px; margin-bottom: 16px; }
-  .carb-btn { flex: 1; padding: 10px; background: var(--bg2); border: 1px solid var(--border); border-radius: 3px; color: var(--text2); font-family: 'Space Mono', monospace; font-size: 10px; cursor: pointer; transition: all 0.2s; text-align: center; }
-  .carb-btn.active { background: rgba(46,191,113,0.15); border-color: var(--green); color: var(--green); }
-  .meal-row { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 8px; }
+  .carb-btn { flex: 1; padding: 10px; background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; color: var(--text2); font-family: 'Space Mono', monospace; font-size: 10px; cursor: pointer; transition: all 0.2s; text-align: center; box-shadow: var(--shadow); }
+  .carb-btn.active { background: rgba(46,191,113,0.12); border-color: var(--green); color: var(--green); }
+  .meal-row { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; box-shadow: var(--shadow); }
   .meal-icon { font-size: 24px; flex-shrink: 0; }
   .meal-info { flex: 1; }
   .meal-label { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
@@ -89,34 +126,42 @@
   .supp-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .supp-name { flex: 1; font-size: 14px; font-weight: 600; }
   .supp-verdict { font-family: 'Space Mono', monospace; font-size: 10px; }
+
+  /* TIMELINE */
   .timeline { position: relative; margin: 20px 0; height: 48px; }
   .timeline-bar { height: 8px; border-radius: 4px; background: var(--border); position: absolute; top: 20px; left: 0; right: 0; overflow: hidden; }
-  .timeline-fast { position: absolute; left: 0; width: 66.7%; height: 100%; background: rgba(231,76,60,0.3); border-right: 2px solid var(--red); }
-  .timeline-eat { position: absolute; left: 66.7%; right: 0; height: 100%; background: rgba(46,191,113,0.3); }
+  .timeline-fast { position: absolute; left: 0; width: 66.7%; height: 100%; background: rgba(231,76,60,0.2); border-right: 2px solid var(--red); }
+  .timeline-eat { position: absolute; left: 66.7%; right: 0; height: 100%; background: rgba(46,191,113,0.2); }
   .timeline-train { position: absolute; left: 60%; width: 6%; height: 100%; background: var(--gold); }
   .timeline-label { position: absolute; font-family: 'Space Mono', monospace; font-size: 9px; }
   .tl-fast{left:0;top:0;color:var(--red);} .tl-train{left:58%;top:0;color:var(--gold);} .tl-eat{right:0;top:0;color:var(--green);}
   .tl-6am{left:0;bottom:0;color:var(--text3);} .tl-1pm{left:58%;bottom:0;color:var(--text3);} .tl-2pm{left:66%;bottom:0;color:var(--text3);} .tl-9pm{right:0;bottom:0;color:var(--text3);}
+
+  /* FORMS */
   .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
   .form-label { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text3); letter-spacing: 0.15em; }
-  .form-input, .form-textarea, .form-select { background: var(--bg2); border: 1px solid var(--border2); border-radius: 3px; color: var(--text); font-family: 'Barlow Condensed', sans-serif; font-size: 15px; padding: 10px 12px; outline: none; width: 100%; transition: border-color 0.2s; -webkit-appearance: none; }
+  .form-input, .form-textarea, .form-select { background: var(--bg2); border: 1px solid var(--border2); border-radius: 6px; color: var(--text); font-family: 'Barlow Condensed', sans-serif; font-size: 15px; padding: 10px 12px; outline: none; width: 100%; transition: border-color 0.2s; -webkit-appearance: none; box-shadow: var(--shadow); }
   .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--gold); }
   .form-textarea { min-height: 80px; resize: vertical; }
   .form-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
-  .primary-btn { width: 100%; padding: 16px; background: var(--gold); border: none; border-radius: 3px; color: #000; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; cursor: pointer; letter-spacing: 0.05em; transition: background 0.2s; margin-top: 8px; }
+  .primary-btn { width: 100%; padding: 16px; background: var(--gold); border: none; border-radius: 6px; color: #fff; font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; cursor: pointer; letter-spacing: 0.05em; transition: background 0.2s; margin-top: 8px; }
   .primary-btn:active { background: var(--gold2); }
   .primary-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .success-msg { text-align: center; font-family: 'Space Mono', monospace; font-size: 11px; color: var(--green); margin-top: 8px; display: none; }
-  .update-box { background: var(--bg3); border: 1px solid var(--border2); border-radius: 4px; padding: 16px; margin-bottom: 16px; }
+
+  /* UPDATE BOX */
+  .update-box { background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
   .update-box-title { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--gold); letter-spacing: 0.15em; margin-bottom: 10px; }
   .update-box-desc { font-size: 13px; color: var(--text2); margin-bottom: 12px; line-height: 1.5; }
-  .update-textarea { background: var(--bg); border: 1px solid var(--border2); border-radius: 3px; color: var(--green); font-family: 'Space Mono', monospace; font-size: 11px; padding: 12px; outline: none; width: 100%; min-height: 90px; resize: vertical; transition: border-color 0.2s; }
+  .update-textarea { background: var(--bg2); border: 1px solid var(--border2); border-radius: 6px; color: var(--green); font-family: 'Space Mono', monospace; font-size: 11px; padding: 12px; outline: none; width: 100%; min-height: 90px; resize: vertical; transition: border-color 0.2s; }
   .update-textarea:focus { border-color: var(--gold); }
-  .update-btn { width: 100%; padding: 14px; background: transparent; border: 1px solid var(--gold); border-radius: 3px; color: var(--gold); font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; cursor: pointer; letter-spacing: 0.05em; transition: all 0.2s; margin-top: 10px; }
-  .update-btn:active { background: var(--gold); color: #000; }
+  .update-btn { width: 100%; padding: 14px; background: transparent; border: 1px solid var(--gold); border-radius: 6px; color: var(--gold); font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; cursor: pointer; letter-spacing: 0.05em; transition: all 0.2s; margin-top: 10px; }
+  .update-btn:active { background: var(--gold); color: #fff; }
   .update-log { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text3); margin-top: 8px; min-height: 16px; }
   .update-log.success { color: var(--green); }
   .update-log.error { color: var(--red); }
+
+  /* STEP ROWS */
   .step-row { display: flex; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
   .step-row:last-child { border-bottom: none; }
   .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--bg3); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-size: 11px; color: var(--gold); flex-shrink: 0; }
@@ -124,21 +169,23 @@
   .step-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
   .step-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
   .step-app { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--gold); margin-bottom: 4px; letter-spacing: 0.1em; }
-  .coaching-note { background: rgba(201,168,76,0.06); border: 1px solid rgba(201,168,76,0.15); border-radius: 4px; padding: 14px; margin-bottom: 16px; }
+
+  /* COACHING NOTE */
+  .coaching-note { background: rgba(201,168,76,0.06); border: 1px solid rgba(201,168,76,0.2); border-radius: 8px; padding: 14px; margin-bottom: 16px; }
   .coaching-note-label { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--gold); letter-spacing: 0.15em; margin-bottom: 6px; }
   .coaching-note-text { font-size: 13px; color: var(--text2); line-height: 1.6; }
 
-  /* PROGRESS TAB */
-  .progress-stat { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 16px 10px; flex: 1; text-align: center; }
+  /* PROGRESS */
+  .progress-stat { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 16px 10px; flex: 1; text-align: center; box-shadow: var(--shadow); }
   .progress-stat-val { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; color: var(--gold2); }
   .progress-stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
-  .progress-entry { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; padding: 14px 16px; margin-bottom: 10px; }
+  .progress-entry { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; box-shadow: var(--shadow); }
   .progress-entry-week { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--gold); margin-bottom: 6px; }
   .progress-entry-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
   .progress-entry-row:last-child { border-bottom: none; }
   .progress-entry-key { color: var(--text2); }
   .progress-entry-val { font-family: 'Space Mono', monospace; color: var(--text); font-size: 12px; }
-  .notion-status { display: flex; align-items: center; gap: 8px; font-family: 'Space Mono', monospace; font-size: 10px; padding: 10px 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: 3px; margin-bottom: 16px; }
+  .notion-status { display: flex; align-items: center; gap: 8px; font-family: 'Space Mono', monospace; font-size: 10px; padding: 10px 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 16px; }
   .notion-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); flex-shrink: 0; }
   .notion-dot.synced { background: var(--green); }
   .notion-dot.syncing { background: var(--gold); animation: pulse 1s infinite; }
@@ -156,9 +203,14 @@
 <div class="app">
   <div class="header">
     <div class="header-logo">keba<span>-</span>fit</div>
-    <div class="header-meta" id="header-meta">
-      <div>93kg · 30s · Recomp</div>
-      <div><strong>16:8</strong> · 2pm–9pm</div>
+    <div class="header-right">
+      <div class="header-meta" id="header-meta">
+        <div>93kg · 30s · Recomp</div>
+        <div><strong>16:8</strong> · 2pm–9pm</div>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <span id="theme-icon">☀️</span>
+      </button>
     </div>
   </div>
 
@@ -249,76 +301,26 @@
     <div class="tab-panel" id="tab-checkin">
       <div class="update-box">
         <div class="update-box-title">⚡ PASTE CLAUDE UPDATE</div>
-        <div class="update-box-desc">Chat with Claude, get an update code, paste it here and tap Apply. Your app updates instantly.</div>
+        <div class="update-box-desc">Chat with Claude, get an update code, paste it here and tap Apply.</div>
         <textarea class="update-textarea" id="update-input" placeholder="KEBA-UPDATE::week=3::calories=2400::..."></textarea>
         <button class="update-btn" onclick="applyUpdate()">APPLY UPDATE</button>
         <div class="update-log" id="update-log"></div>
       </div>
-
       <div class="section-label">Weekly Check-In</div>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6;">Fill this in and tap Submit — it saves directly to your Notion Progress Log.</p>
-
+      <p style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6;">Fill this in and tap Submit — saves directly to your Notion Progress Log.</p>
       <div class="notion-status" id="notion-status">
         <div class="notion-dot" id="notion-dot"></div>
         <span id="notion-status-text">Not synced yet</span>
       </div>
-
-      <div class="form-group">
-        <label class="form-label">Week Number</label>
-        <select class="form-select" id="ci-week">
-          <option>Week 1</option><option>Week 2</option><option>Week 3</option>
-          <option>Week 4</option><option>Week 5 (Deload)</option><option>Week 6+</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Current Weight (kg)</label>
-        <input class="form-input" id="ci-weight" type="number" placeholder="e.g. 93" step="0.1"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Sessions Completed</label>
-        <select class="form-select" id="ci-sessions">
-          <option>4/4 — Full week</option><option>3/4 — Missed one</option>
-          <option>2/4 — Struggled</option><option>1/4 — Rough week</option><option>0/4 — Missed everything</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Protein Target Hit?</label>
-        <select class="form-select" id="ci-protein">
-          <option>Yes — consistently 160g+</option>
-          <option>Mostly — 130–160g average</option>
-          <option>Struggled — under 130g most days</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Nutrition Compliance</label>
-        <select class="form-select" id="ci-nutrition">
-          <option value="On point">On point — hit targets most days</option>
-          <option value="Okay">Okay — a few off days</option>
-          <option value="Poor">Poor — went off plan a lot</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Energy & Recovery (1–5)</label>
-        <select class="form-select" id="ci-energy">
-          <option value="5">5 — Felt great</option><option value="4">4 — Good with some tired days</option>
-          <option value="3">3 — Average</option><option value="2">2 — Often tired or sore</option><option value="1">1 — Burned out</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Back / Shoulder Issues?</label>
-        <select class="form-select" id="ci-injury">
-          <option>No issues</option><option>Minor discomfort</option>
-          <option>Moderate pain</option><option>Significant pain</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Biggest Win This Week</label>
-        <textarea class="form-textarea" id="ci-win" placeholder="e.g. Hit protein every day, increased weight on rows..."></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Biggest Challenge / Question for Claude</label>
-        <textarea class="form-textarea" id="ci-challenge" placeholder="e.g. Struggling with meal timing on rest days..."></textarea>
-      </div>
+      <div class="form-group"><label class="form-label">Week Number</label><select class="form-select" id="ci-week"><option>Week 1</option><option>Week 2</option><option>Week 3</option><option>Week 4</option><option>Week 5 (Deload)</option><option>Week 6+</option></select></div>
+      <div class="form-group"><label class="form-label">Current Weight (kg)</label><input class="form-input" id="ci-weight" type="number" placeholder="e.g. 93" step="0.1"/></div>
+      <div class="form-group"><label class="form-label">Sessions Completed</label><select class="form-select" id="ci-sessions"><option>4/4 — Full week</option><option>3/4 — Missed one</option><option>2/4 — Struggled</option><option>1/4 — Rough week</option><option>0/4 — Missed everything</option></select></div>
+      <div class="form-group"><label class="form-label">Protein Target Hit?</label><select class="form-select" id="ci-protein"><option>Yes — consistently 160g+</option><option>Mostly — 130–160g average</option><option>Struggled — under 130g most days</option></select></div>
+      <div class="form-group"><label class="form-label">Nutrition Compliance</label><select class="form-select" id="ci-nutrition"><option value="On point">On point — hit targets most days</option><option value="Okay">Okay — a few off days</option><option value="Poor">Poor — went off plan a lot</option></select></div>
+      <div class="form-group"><label class="form-label">Energy & Recovery (1–5)</label><select class="form-select" id="ci-energy"><option value="5">5 — Felt great</option><option value="4">4 — Good with some tired days</option><option value="3">3 — Average</option><option value="2">2 — Often tired or sore</option><option value="1">1 — Burned out</option></select></div>
+      <div class="form-group"><label class="form-label">Back / Shoulder Issues?</label><select class="form-select" id="ci-injury"><option>No issues</option><option>Minor discomfort</option><option>Moderate pain</option><option>Significant pain</option></select></div>
+      <div class="form-group"><label class="form-label">Biggest Win This Week</label><textarea class="form-textarea" id="ci-win" placeholder="e.g. Hit protein every day, increased weight on rows..."></textarea></div>
+      <div class="form-group"><label class="form-label">Biggest Challenge / Question for Claude</label><textarea class="form-textarea" id="ci-challenge" placeholder="e.g. Struggling with meal timing on rest days..."></textarea></div>
       <button class="primary-btn" id="submit-btn" onclick="submitCheckin()">📊 SAVE TO NOTION + COPY FOR CLAUDE</button>
       <div class="success-msg" id="copy-success">✅ Saved to Notion & copied! Paste into Claude.</div>
     </div>
@@ -326,7 +328,7 @@
     <!-- PROGRESS TAB -->
     <div class="tab-panel" id="tab-progress">
       <div class="section-label">Your Stats</div>
-      <div style="display:flex;gap:10px;margin-bottom:20px;" id="stats-row">
+      <div style="display:flex;gap:10px;margin-bottom:20px;">
         <div class="progress-stat"><div class="progress-stat-val" id="stat-weeks">—</div><div class="progress-stat-label">Weeks Logged</div></div>
         <div class="progress-stat"><div class="progress-stat-val" id="stat-weight">—</div><div class="progress-stat-label">Current kg</div></div>
         <div class="progress-stat"><div class="progress-stat-val" id="stat-change">—</div><div class="progress-stat-label">kg Change</div></div>
@@ -350,7 +352,7 @@
         <div class="step-row"><div class="step-num">1</div><div class="step-content"><div class="step-app">HEVY</div><div class="step-title">Download & Log Workouts</div><div class="step-desc">Free on App Store. Log every session — track weights and reps to see progressive overload in action.</div></div></div>
         <div class="step-row"><div class="step-num">2</div><div class="step-content"><div class="step-app">MYFITNESSPAL</div><div class="step-title">Set Targets & Log Food</div><div class="step-desc">Set daily targets: 2,300 cal / 170g protein. Use barcode scanner for every meal.</div></div></div>
         <div class="step-row"><div class="step-num">3</div><div class="step-content"><div class="step-app">APPLE HEALTH + WATCH</div><div class="step-title">Connect Everything</div><div class="step-desc">Enable Apple Health sync in both Hevy and MFP. Apple Health becomes your single source of truth.</div></div></div>
-        <div class="step-row"><div class="step-num">4</div><div class="step-content"><div class="step-app">NOTION + CLAUDE</div><div class="step-title">Weekly Check-in System</div><div class="step-desc">Fill in the Check-in tab weekly. It saves to Notion automatically and copies a summary for Claude coaching.</div></div></div>
+        <div class="step-row"><div class="step-num">4</div><div class="step-content"><div class="step-app">NOTION + CLAUDE</div><div class="step-title">Weekly Check-in System</div><div class="step-desc">Fill in the Check-in tab weekly. Saves to Notion automatically and copies a summary for Claude coaching.</div></div></div>
         <div class="step-row"><div class="step-num">5</div><div class="step-content"><div class="step-app">PWA · IPHONE</div><div class="step-title">Save to Home Screen</div><div class="step-desc">Open kebafit.netlify.app in Safari. Tap Share → "Add to Home Screen" → Add.</div></div></div>
       </div>
     </div>
@@ -382,6 +384,33 @@
 </div>
 
 <script>
+// ── THEME ─────────────────────────────────────────────────────────────────
+
+function getAutoTheme() {
+  const h = new Date().getHours();
+  return (h >= 8 && h < 20) ? 'light' : 'dark';
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme === 'light' ? 'light' : '');
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+  localStorage.setItem('kebafit-theme-override', theme);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  applyTheme(current === 'light' ? 'dark' : 'light');
+}
+
+// Init theme: use override if set, else auto
+(function() {
+  const override = localStorage.getItem('kebafit-theme-override');
+  applyTheme(override || getAutoTheme());
+})();
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+
 const DEFAULTS = {
   weight: 93, week: 1,
   training: { calories: 2300, protein: 170, carbs: 220, fats: 65 },
@@ -451,7 +480,7 @@ let currentDayType = 'training';
 
 function saveState() { localStorage.setItem('kebafit-state', JSON.stringify(STATE)); }
 
-// ─── NOTION SYNC ──────────────────────────────────────────────────────────
+// ── NOTION ────────────────────────────────────────────────────────────────
 
 const API = '/.netlify/functions/notion';
 
@@ -485,8 +514,7 @@ function renderProgress(entries) {
     document.getElementById('stat-weight').textContent = weights[0] + 'kg';
     if (weights.length > 1) {
       const change = (weights[0] - weights[weights.length - 1]).toFixed(1);
-      const sign = change > 0 ? '+' : '';
-      document.getElementById('stat-change').textContent = sign + change;
+      document.getElementById('stat-change').textContent = (change > 0 ? '+' : '') + change;
     }
   }
   container.innerHTML = entries.map(e => `
@@ -507,45 +535,30 @@ async function submitCheckin() {
   btn.disabled = true;
   btn.textContent = 'Saving...';
   setNotionStatus('syncing', 'Saving to Notion...');
-
   const nutritionEl = document.getElementById('ci-nutrition');
-  const nutritionVal = nutritionEl.options[nutritionEl.selectedIndex].value;
-  const energyEl = document.getElementById('ci-energy');
-
   const payload = {
     week: document.getElementById('ci-week').value,
     date: new Date().toISOString().split('T')[0],
     weight: document.getElementById('ci-weight').value || null,
     sessions: document.getElementById('ci-sessions').value,
     protein: document.getElementById('ci-protein').value,
-    nutrition: nutritionVal,
-    energy: energyEl.value,
+    nutrition: nutritionEl.options[nutritionEl.selectedIndex].value,
+    energy: document.getElementById('ci-energy').value,
     backShoulder: document.getElementById('ci-injury').value,
     biggestWin: document.getElementById('ci-win').value,
     challenge: document.getElementById('ci-challenge').value,
     coachNotes: ''
   };
-
   try {
-    const res = await fetch(API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    const res = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const data = await res.json();
-
     if (data.success) {
       setNotionStatus('synced', 'Saved to Notion ✓');
-
-      // Also copy for Claude
-      const text = `📊 KEBA-FIT WEEKLY CHECK-IN\n━━━━━━━━━━━━━━━━━━━━━━\nWeek: ${payload.week}\nWeight: ${payload.weight || '—'}kg\nSessions: ${payload.sessions}\nProtein: ${payload.protein}\nNutrition: ${payload.nutrition}\nEnergy & Recovery: ${payload.energy}/5\nBack/Shoulder: ${payload.backShoulder}\n\n🏆 Biggest Win:\n${payload.biggestWin || '—'}\n\n❓ Challenge / Question:\n${payload.challenge || '—'}\n━━━━━━━━━━━━━━━━━━━━━━\nPlease review my week and give me a KEBA-UPDATE code with any adjustments for next week.`;
+      const text = `📊 KEBA-FIT WEEKLY CHECK-IN\n━━━━━━━━━━━━━━━━━━━━━━\nWeek: ${payload.week}\nWeight: ${payload.weight || '—'}kg\nSessions: ${payload.sessions}\nProtein: ${payload.protein}\nNutrition: ${payload.nutrition}\nEnergy: ${payload.energy}/5\nBack/Shoulder: ${payload.backShoulder}\n\n🏆 Biggest Win:\n${payload.biggestWin || '—'}\n\n❓ Challenge:\n${payload.challenge || '—'}\n━━━━━━━━━━━━━━━━━━━━━━\nPlease review my week and give me a KEBA-UPDATE code.`;
       navigator.clipboard.writeText(text).catch(() => {});
-
       const el = document.getElementById('copy-success');
       el.style.display = 'block';
       setTimeout(() => el.style.display = 'none', 4000);
-
-      // Update header weight if provided
       if (payload.weight) { STATE.weight = parseFloat(payload.weight); saveState(); renderHeader(); }
     } else {
       setNotionStatus('error', 'Save failed — try again');
@@ -553,12 +566,11 @@ async function submitCheckin() {
   } catch(e) {
     setNotionStatus('error', 'Connection error');
   }
-
   btn.disabled = false;
   btn.textContent = '📊 SAVE TO NOTION + COPY FOR CLAUDE';
 }
 
-// ─── RENDER ──────────────────────────────────────────────────────────────
+// ── RENDER ────────────────────────────────────────────────────────────────
 
 function renderDay() {
   const days = { push:"PUSH", pull:"PULL", legs:"LEGS + CORE", full:"FULL BODY" };
@@ -572,14 +584,7 @@ function renderDay() {
     const progressed = w > 0 && sets > prevSets;
     html += `<div class="exercise-row"><div class="exercise-num">${String(i+1).padStart(2,'0')}</div><div class="exercise-info"><div class="exercise-name">${ex.name}</div><div class="exercise-note">${ex.note}</div><div class="exercise-sets">${sets} × ${ex.reps}</div></div>${progressed ? `<div class="overload-badge">+SETS W${currentWeek}</div>` : ''}</div>`;
   });
-  html += `</div>`;
-  const focuses = [
-    "Learn the movements. Perfect form over weight. Note how your back and shoulders feel.",
-    "Add 1 set to main lifts. If form was solid, add 2.5–5kg to compounds. Track in Hevy.",
-    "Volume peak. 4 sets on most exercises. Beat last week on something every session.",
-    "Intensity peak. Push harder. Deload follows — give it everything this week."
-  ];
-  html += `<div class="card card-sm" style="margin-top:10px;"><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text3);margin-bottom:6px;">WEEK ${currentWeek} FOCUS</div><div style="font-size:13px;color:var(--text2);">${focuses[w]}</div></div>`;
+  html += `</div><div class="card card-sm" style="margin-top:10px;"><div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text3);margin-bottom:6px;">WEEK ${currentWeek} FOCUS</div><div style="font-size:13px;color:var(--text2);">${["Learn the movements. Perfect form over weight. Note how your back and shoulders feel.","Add 1 set to main lifts. If form was solid, add 2.5–5kg to compounds. Track in Hevy.","Volume peak. 4 sets on most exercises. Beat last week on something every session.","Intensity peak. Push harder. Deload follows — give it everything this week."][w]}</div></div>`;
   document.getElementById('day-content').innerHTML = html;
 }
 
@@ -590,16 +595,8 @@ function renderMeals() {
   document.getElementById('prot-val').textContent = targets.protein;
   document.getElementById('carb-val').textContent = targets.carbs;
   document.getElementById('fat-val').textContent = targets.fats;
-  let html = '';
-  meals.forEach(m => {
-    html += `<div class="meal-row"><div class="meal-icon">${m.icon}</div><div class="meal-info"><div class="meal-label">${m.label}</div><div class="meal-desc">${m.desc}</div></div><div class="meal-meta"><div class="meal-protein">${m.protein}g</div><div class="meal-punit">protein</div><div class="meal-time">${m.time}</div></div></div>`;
-  });
-  document.getElementById('meal-plan').innerHTML = html;
-  let suppHtml = '';
-  STATE.supplements.forEach(s => {
-    suppHtml += `<div class="supp-row"><div class="supp-dot" style="background:${s.color}"></div><div class="supp-name">${s.name}</div><div class="supp-verdict" style="color:${s.color}">${s.verdict}</div></div>`;
-  });
-  document.getElementById('supp-list').innerHTML = suppHtml;
+  document.getElementById('meal-plan').innerHTML = meals.map(m => `<div class="meal-row"><div class="meal-icon">${m.icon}</div><div class="meal-info"><div class="meal-label">${m.label}</div><div class="meal-desc">${m.desc}</div></div><div class="meal-meta"><div class="meal-protein">${m.protein}g</div><div class="meal-punit">protein</div><div class="meal-time">${m.time}</div></div></div>`).join('');
+  document.getElementById('supp-list').innerHTML = STATE.supplements.map(s => `<div class="supp-row"><div class="supp-dot" style="background:${s.color}"></div><div class="supp-name">${s.name}</div><div class="supp-verdict" style="color:${s.color}">${s.verdict}</div></div>`).join('');
   document.getElementById('budget-daily').textContent = STATE.budgetDaily;
   document.getElementById('budget-weekly').textContent = STATE.budgetWeekly;
 }
@@ -618,7 +615,7 @@ function renderHeader() {
   document.getElementById('header-meta').innerHTML = `<div>${STATE.weight}kg · 30s · Recomp</div><div><strong>16:8</strong> · 2pm–9pm</div>`;
 }
 
-// ─── UPDATE PARSER ────────────────────────────────────────────────────────
+// ── UPDATE PARSER ─────────────────────────────────────────────────────────
 
 function applyUpdate() {
   const raw = document.getElementById('update-input').value.trim();
@@ -633,21 +630,21 @@ function applyUpdate() {
       switch(key.trim()) {
         case 'week': currentWeek = parseInt(val); document.querySelectorAll('.week-btn').forEach((b,i) => b.classList.toggle('active', i === currentWeek-1)); changes.push('week → ' + val); break;
         case 'weight': STATE.weight = parseFloat(val); changes.push('weight → ' + val + 'kg'); break;
-        case 'calories': STATE.training.calories = parseInt(val); changes.push('training calories → ' + val); break;
-        case 'caloriesRest': STATE.rest.calories = parseInt(val); changes.push('rest calories → ' + val); break;
-        case 'protein': STATE.training.protein = parseInt(val); STATE.rest.protein = parseInt(val); changes.push('protein → ' + val + 'g'); break;
+        case 'calories': STATE.training.calories = parseInt(val); changes.push('training cal → ' + val); break;
+        case 'caloriesRest': STATE.rest.calories = parseInt(val); changes.push('rest cal → ' + val); break;
+        case 'protein': STATE.training.protein = STATE.rest.protein = parseInt(val); changes.push('protein → ' + val + 'g'); break;
         case 'carbsTraining': STATE.training.carbs = parseInt(val); changes.push('training carbs → ' + val + 'g'); break;
         case 'carbsRest': STATE.rest.carbs = parseInt(val); changes.push('rest carbs → ' + val + 'g'); break;
         case 'fatsTraining': STATE.training.fats = parseInt(val); changes.push('training fats → ' + val + 'g'); break;
         case 'fatsRest': STATE.rest.fats = parseInt(val); changes.push('rest fats → ' + val + 'g'); break;
-        case 'noteTraining': STATE.coachNoteTraining = val.replace(/\|/g, '\n'); changes.push('coach note (training) updated'); break;
-        case 'noteNutrition': STATE.coachNoteNutrition = val.replace(/\|/g, '\n'); changes.push('coach note (nutrition) updated'); break;
+        case 'noteTraining': STATE.coachNoteTraining = val.replace(/\|/g, '\n'); changes.push('coach note (training)'); break;
+        case 'noteNutrition': STATE.coachNoteNutrition = val.replace(/\|/g, '\n'); changes.push('coach note (nutrition)'); break;
         case 'budgetDaily': STATE.budgetDaily = val; changes.push('daily budget → ' + val); break;
-        case 'swapExercise': { const [loc, newName] = val.split('>'); const [dayKey, idxStr] = loc.split('.'); const idx = parseInt(idxStr); if (STATE.exercises[dayKey]?.[idx]) { STATE.exercises[dayKey][idx].name = newName; changes.push(`swapped ${dayKey} ex ${idx+1}`); } break; }
-        case 'exerciseNote': { const [loc, newNote] = val.split('>'); const [dayKey, idxStr] = loc.split('.'); const idx = parseInt(idxStr); if (STATE.exercises[dayKey]?.[idx]) { STATE.exercises[dayKey][idx].note = newNote; changes.push(`updated note`); } break; }
-        case 'sets': { const [loc, setsStr] = val.split('>'); const [dayKey, idxStr] = loc.split('.'); const idx = parseInt(idxStr); if (STATE.exercises[dayKey]?.[idx]) { STATE.exercises[dayKey][idx].sets = setsStr.split(',').map(Number); changes.push(`updated sets`); } break; }
-        case 'meal1Training': case 'meal2Training': case 'meal3Training': case 'meal4Training': { const mIdx = parseInt(key.replace('meal','').replace('Training','')) - 1; if (STATE.mealsTraining[mIdx]) { STATE.mealsTraining[mIdx].desc = val.replace(/\|/g,' '); changes.push(`meal ${mIdx+1} training`); } break; }
-        case 'meal1Rest': case 'meal2Rest': case 'meal3Rest': case 'meal4Rest': { const mIdx = parseInt(key.replace('meal','').replace('Rest','')) - 1; if (STATE.mealsRest[mIdx]) { STATE.mealsRest[mIdx].desc = val.replace(/\|/g,' '); changes.push(`meal ${mIdx+1} rest`); } break; }
+        case 'swapExercise': { const [loc, newName] = val.split('>'); const [d, i] = loc.split('.'); if (STATE.exercises[d]?.[+i]) { STATE.exercises[d][+i].name = newName; changes.push(`swapped ${d} ex ${+i+1}`); } break; }
+        case 'exerciseNote': { const [loc, n] = val.split('>'); const [d, i] = loc.split('.'); if (STATE.exercises[d]?.[+i]) { STATE.exercises[d][+i].note = n; changes.push('note updated'); } break; }
+        case 'sets': { const [loc, s] = val.split('>'); const [d, i] = loc.split('.'); if (STATE.exercises[d]?.[+i]) { STATE.exercises[d][+i].sets = s.split(',').map(Number); changes.push('sets updated'); } break; }
+        case 'meal1Training': case 'meal2Training': case 'meal3Training': case 'meal4Training': { const mi = parseInt(key.replace('meal','').replace('Training',''))-1; if (STATE.mealsTraining[mi]) { STATE.mealsTraining[mi].desc = val.replace(/\|/g,' '); changes.push(`meal ${mi+1} training`); } break; }
+        case 'meal1Rest': case 'meal2Rest': case 'meal3Rest': case 'meal4Rest': { const mi = parseInt(key.replace('meal','').replace('Rest',''))-1; if (STATE.mealsRest[mi]) { STATE.mealsRest[mi].desc = val.replace(/\|/g,' '); changes.push(`meal ${mi+1} rest`); } break; }
       }
     });
     saveState();
@@ -658,7 +655,7 @@ function applyUpdate() {
   } catch(e) { log.textContent = '❌ Parse error.'; log.className = 'update-log error'; }
 }
 
-// ─── CONTROLS ────────────────────────────────────────────────────────────
+// ── CONTROLS ──────────────────────────────────────────────────────────────
 
 function switchTab(tab, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -693,7 +690,7 @@ function setDayType(type, btn) {
   renderMeals();
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────────────────
 renderHeader();
 renderDay();
 renderMeals();
